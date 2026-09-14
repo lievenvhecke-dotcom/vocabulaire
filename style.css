@@ -573,3 +573,9 @@ input:focus {
     color: #777;
     font-size: 13px;
 }
+
+.percentage-button.selected {
+    background: #e67e22;
+    color: white;
+    border-color: #e67e22;
+}

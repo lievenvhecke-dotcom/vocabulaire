@@ -117,6 +117,7 @@ logoutButton.addEventListener("click", async function () {
         await supabaseClient.auth.signOut();
 
     if (error) {
+
         console.error(
             "Fout bij uitloggen:",
             error
@@ -129,26 +130,10 @@ logoutButton.addEventListener("click", async function () {
         return;
     }
 
-    // Mailadres uit header verwijderen
-    const loggedInUser =
-        document.getElementById("loggedInUser");
-
-    if (loggedInUser) {
-        loggedInUser.textContent = "";
-    }
-
-    // Header verbergen
-    const mainTopbar =
-        document.getElementById("mainTopbar");
-
-    if (mainTopbar) {
-        mainTopbar.style.display = "none";
-    }
-
-    // Login-scherm tonen
-    toonScherm(loginScreen);
+    await controleerSessie();
 
 });
+
 document
     .getElementById("loginButton")
     .addEventListener("click", async function () {
@@ -198,15 +183,8 @@ document
             return;
         }
 
-        // Ingelogde gebruiker tonen
-        await toonIngelogdeGebruiker();
-
-        document
-    .getElementById("mainTopbar")
-    .style.display = "flex";
-        
-        // Sessie controleren en app laden
-        await controleerSessie();
+// Sessie controleren en app laden
+await controleerSessie();
 
     });
 
@@ -240,17 +218,41 @@ async function controleerSessie() {
         data: { session }
     } = await supabaseClient.auth.getSession();
 
+    const mainTopbar =
+        document.getElementById("mainTopbar");
+
     if (session) {
 
+        // Header tonen
+        if (mainTopbar) {
+            mainTopbar.style.display = "flex";
+        }
+
+        // Ingelogde gebruiker tonen
+        await toonIngelogdeGebruiker();
+
+        // Hoofdscherm tonen
         toonScherm(homeScreen);
 
     } else {
 
-        toonScherm(loginScreen);
+        // Header verbergen
+        if (mainTopbar) {
+            mainTopbar.style.display = "none";
+        }
 
+        // Mailadres verwijderen
+        const loggedInUser =
+            document.getElementById("loggedInUser");
+
+        if (loggedInUser) {
+            loggedInUser.textContent = "";
+        }
+
+        // Login-scherm tonen
+        toonScherm(loginScreen);
     }
 }
-
 
 /* =========================
    TAAL KIEZEN
@@ -1399,7 +1401,6 @@ function gewogenSelectie(
 let oefenWoorden = [];
 
 
-document
 document
     .getElementById("startPracticeButton")
     .addEventListener("click", async function () {

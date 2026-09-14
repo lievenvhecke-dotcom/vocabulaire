@@ -135,9 +135,6 @@ if (loggedInUser) {
     loggedInUser.textContent = "";
 }
 
-document
-    .getElementById("mainTopbar")
-    .style.display = "none";
 
 toonScherm(loginScreen);
 
@@ -195,9 +192,6 @@ document
         // Ingelogde gebruiker tonen
         await toonIngelogdeGebruiker();
 
-document
-    .getElementById("mainTopbar")
-    .style.display = "flex";
         
         // Sessie controleren en app laden
         await controleerSessie();

@@ -242,22 +242,146 @@ async function laadHoofdstukken() {
                 ${escapeHtml(hoofdstuk.naam)}
             </span>
 
-            <span class="chapter-arrow">
-                →
+            <span class="chapter-actions">
+
+                <button
+                    class="edit-chapter-button"
+                    type="button">
+                    ✏️
+                </button>
+
+                <button
+                    class="delete-chapter-button"
+                    type="button">
+                    🗑️
+                </button>
+
+                <span class="chapter-arrow">
+                    →
+                </span>
+
             </span>
         `;
 
+        // Hoofdstuk openen
         item.addEventListener("click", function () {
 
             openHoofdstuk(hoofdstuk);
 
         });
 
+        // Bewerken
+        item
+            .querySelector(".edit-chapter-button")
+            .addEventListener("click", function (event) {
+
+                event.stopPropagation();
+
+                bewerkHoofdstuk(hoofdstuk);
+
+            });
+
+        // Verwijderen
+        item
+            .querySelector(".delete-chapter-button")
+            .addEventListener("click", function (event) {
+
+                event.stopPropagation();
+
+                verwijderHoofdstuk(hoofdstuk);
+
+            });
+
         chaptersList.appendChild(item);
 
     });
 }
 
+async function bewerkHoofdstuk(hoofdstuk) {
+
+    const nieuweNaam =
+        prompt(
+            "Nieuwe naam voor het hoofdstuk:",
+            hoofdstuk.naam
+        );
+
+    if (nieuweNaam === null) {
+        return;
+    }
+
+    const naam =
+        nieuweNaam.trim();
+
+    if (!naam) {
+        alert("De naam mag niet leeg zijn.");
+        return;
+    }
+
+    const {
+        error
+    } = await supabaseClient
+        .from("hoofdstukken")
+        .update({
+            naam: naam
+        })
+        .eq("id", hoofdstuk.id);
+
+    if (error) {
+
+        console.error(
+            "Fout bij wijzigen hoofdstuk:",
+            error
+        );
+
+        alert(
+            "Fout bij wijzigen:\n\n" +
+            error.message
+        );
+
+        return;
+    }
+
+    await laadHoofdstukken();
+}
+
+
+async function verwijderHoofdstuk(hoofdstuk) {
+
+    const bevestiging =
+        confirm(
+            'Ben je zeker dat je hoofdstuk "' +
+            hoofdstuk.naam +
+            '" wilt verwijderen?'
+        );
+
+    if (!bevestiging) {
+        return;
+    }
+
+    const {
+        error
+    } = await supabaseClient
+        .from("hoofdstukken")
+        .delete()
+        .eq("id", hoofdstuk.id);
+
+    if (error) {
+
+        console.error(
+            "Fout bij verwijderen hoofdstuk:",
+            error
+        );
+
+        alert(
+            "Fout bij verwijderen:\n\n" +
+            error.message
+        );
+
+        return;
+    }
+
+    await laadHoofdstukken();
+}
 
 /* =========================
    HOOFDSTUK OPENEN

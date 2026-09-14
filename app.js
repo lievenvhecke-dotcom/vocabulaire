@@ -783,9 +783,9 @@ async function verwijderWoord(woord) {
     await laadWoorden();
 }
 
-/* =========================
-   WOORD TOEVOEGEN
-   ========================= */
+ /* =========================
+    WOORD TOEVOEGEN
+    ========================= */
 
 const wordModal =
     document.getElementById("wordModal");
@@ -834,9 +834,20 @@ document
                 .trim();
 
         if (!nederlands || !vertaling) {
+            return;
+        }
+
+        // Ingelogde gebruiker ophalen
+        const gebruikerId =
+            await huidigeGebruikerId();
+
+        if (!gebruikerId) {
+
+            alert(
+                "Je bent niet ingelogd."
+            );
 
             return;
-
         }
 
         const {
@@ -844,6 +855,9 @@ document
         } = await supabaseClient
             .from("woorden")
             .insert({
+
+                gebruiker_id:
+                    gebruikerId,
 
                 hoofdstuk_id:
                     huidigHoofdstuk.id,
@@ -854,11 +868,14 @@ document
                 vertaling:
                     vertaling
 
-        });
+            });
 
         if (error) {
 
-            console.error(error);
+            console.error(
+                "Fout bij opslaan woord:",
+                error
+            );
 
             alert(
                 "Het woord kon niet worden opgeslagen."
@@ -872,8 +889,6 @@ document
         await laadWoorden();
 
     });
-
-
 /* =========================
    HTML VEILIG MAKEN
    ========================= */

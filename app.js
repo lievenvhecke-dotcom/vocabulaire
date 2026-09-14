@@ -853,7 +853,6 @@ document
                     : "Engels";
 
         await laadOefenHoofdstukken();
-        await updateOefenAantal();
 
     });
 
@@ -924,153 +923,10 @@ document
                     this.dataset.percentage
                 );
 
-            updateOefenAantal();
 
         });
 
     });
-
-async function updateOefenAantal() {
-
-    const select =
-        document.getElementById(
-            "practiceChapter"
-        );
-
-    const geselecteerdeIds =
-        Array.from(
-            select.selectedOptions
-        ).map(option => option.value);
-
-    let hoofdstukIds =
-        geselecteerdeIds;
-
-    // Geen selectie = alle hoofdstukken
-    if (hoofdstukIds.length === 0) {
-
-        const {
-            data: hoofdstukken,
-            error
-        } = await supabaseClient
-            .from("hoofdstukken")
-            .select("id")
-            .eq("taal", huidigeTaal)
-            .order("volgorde", {
-                ascending: true
-            });
-
-        if (error) {
-
-            console.error(error);
-            return;
-        }
-
-        hoofdstukIds =
-            hoofdstukken.map(
-                hoofdstuk => hoofdstuk.id
-            );
-    }
-
-    if (hoofdstukIds.length === 0) {
-
-        document
-            .getElementById(
-                "practiceWordCount"
-            )
-            .textContent =
-                "Geen hoofdstukken beschikbaar.";
-
-        return;
-    }
-
-
-    // Woorden van de geselecteerde hoofdstukken ophalen
-    const {
-        data: woorden,
-        error
-    } = await supabaseClient
-        .from("woorden")
-        .select("id, hoofdstuk_id")
-        .in(
-            "hoofdstuk_id",
-            hoofdstukIds
-        );
-
-    if (error) {
-
-        console.error(
-            "Fout bij tellen woorden:",
-            error
-        );
-
-        return;
-    }
-
-
-    // Woorden per hoofdstuk tellen
-    const aantallenPerHoofdstuk = {};
-
-    hoofdstukIds.forEach(id => {
-        aantallenPerHoofdstuk[id] = 0;
-    });
-
-    woorden.forEach(woord => {
-
-        if (
-            aantallenPerHoofdstuk[
-                woord.hoofdstuk_id
-            ] !== undefined
-        ) {
-            aantallenPerHoofdstuk[
-                woord.hoofdstuk_id
-            ]++;
-        }
-
-    });
-
-
-    // Per hoofdstuk het gekozen percentage nemen
-    let totaalWoorden = 0;
-    let totaalOefenen = 0;
-
-    Object.values(
-        aantallenPerHoofdstuk
-    ).forEach(aantal => {
-
-        totaalWoorden += aantal;
-
-        if (aantal > 0) {
-
-            totaalOefenen +=
-                Math.max(
-                    1,
-                    Math.ceil(
-                        aantal *
-                        gekozenPercentage /
-                        100
-                    )
-                );
-
-        }
-
-    });
-
-
-    const hoofdstukTekst =
-        hoofdstukIds.length === 1
-            ? "hoofdstuk"
-            : "hoofdstukken";
-
-
-    document
-        .getElementById(
-            "practiceWordCount"
-        )
-        .textContent =
-            `${totaalWoorden} woorden in ` +
-            `${hoofdstukIds.length} ${hoofdstukTekst} → ` +
-            `${totaalOefenen} woorden worden geoefend.`;
-}
 
 async function selecteerOefenWoorden() {
 
@@ -1361,4 +1217,85 @@ function gewogenSelectie(
 
 
     return resultaat;
+}
+
+/* =========================
+   OEFENING STARTEN
+   ========================= */
+
+let oefenWoorden = [];
+let huidigOefenWoordIndex = 0;
+
+
+document
+    .getElementById("startPracticeButton")
+    .addEventListener("click", async function () {
+
+        oefenWoorden =
+            await selecteerOefenWoorden();
+
+        if (
+            !oefenWoorden ||
+            oefenWoorden.length === 0
+        ) {
+
+            alert(
+                "Er zijn geen woorden om te oefenen."
+            );
+
+            return;
+        }
+
+        huidigOefenWoordIndex = 0;
+
+        document
+            .getElementById("practiceSetupScreen")
+            .classList.add("hidden");
+
+        document
+            .getElementById("practiceScreen")
+            .classList.remove("hidden");
+
+        toonOefenWoord();
+
+    });
+
+
+function toonOefenWoord() {
+
+    const woord =
+        oefenWoorden[
+            huidigOefenWoordIndex
+        ];
+
+    document
+        .getElementById("practiceProgress")
+        .textContent =
+            `Vraag ${huidigOefenWoordIndex + 1} van ${oefenWoorden.length}`;
+
+    document
+        .getElementById("practiceQuestion")
+        .textContent =
+            woord.nederlands;
+
+    document
+        .getElementById("practiceAnswer")
+        .value = "";
+
+    document
+        .getElementById("practiceFeedback")
+        .textContent = "";
+
+    document
+        .getElementById("nextQuestionButton")
+        .classList.add("hidden");
+
+    document
+        .getElementById("checkAnswerButton")
+        .classList.remove("hidden");
+
+    document
+        .getElementById("practiceAnswer")
+        .focus();
+
 }

@@ -1831,3 +1831,47 @@ document
             .classList.remove("hidden");
 
     });
+
+document
+    .getElementById("practiceBackButton")
+    .addEventListener("click", function () {
+
+        document
+            .getElementById("practiceSetupScreen")
+            .classList.add("hidden");
+
+        document
+            .getElementById("languageScreen")
+            .classList.remove("hidden");
+
+    });
+
+
+document
+    .getElementById("stopPracticeButton")
+    .addEventListener("click", function () {
+
+        document
+            .getElementById("practiceScreen")
+            .classList.add("hidden");
+
+        document
+            .getElementById("practiceSetupScreen")
+            .classList.remove("hidden");
+
+    });
+
+
+document
+    .getElementById("resultBackButton")
+    .addEventListener("click", function () {
+
+        document
+            .getElementById("practiceResultScreen")
+            .classList.add("hidden");
+
+        document
+            .getElementById("practiceSetupScreen")
+            .classList.remove("hidden");
+
+    });

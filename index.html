@@ -2,11 +2,334 @@
 <html lang="nl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <meta name="theme-color" content="#4f46e5">
+
     <title>Vocabulaire</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
+
 <body>
-    <h1>Vocabulaire</h1>
-    <p>Mijn vocabulaire-app werkt!</p>
+
+<div id="app">
+
+    <!-- LOGIN -->
+    <section id="loginScreen" class="screen">
+
+        <div class="login-card">
+
+            <div class="logo">V</div>
+
+            <h1>Vocabulaire</h1>
+
+            <p class="subtitle">
+                Frans & Engels
+            </p>
+
+            <form id="loginForm">
+
+                <label for="email">
+                    E-mailadres
+                </label>
+
+                <input
+                    type="email"
+                    id="email"
+                    autocomplete="email"
+                    required
+                >
+
+                <label for="password">
+                    Wachtwoord
+                </label>
+
+                <input
+                    type="password"
+                    id="password"
+                    autocomplete="current-password"
+                    required
+                >
+
+                <button type="submit" class="primary-button">
+                    Inloggen
+                </button>
+
+                <p id="loginError" class="error-message"></p>
+
+            </form>
+
+        </div>
+
+    </section>
+
+
+    <!-- HOOFDSCHERM -->
+    <section id="homeScreen" class="screen hidden">
+
+        <header class="topbar">
+
+            <div>
+                <h1>Vocabulaire</h1>
+                <p>Frans & Engels</p>
+            </div>
+
+            <button id="logoutButton" class="secondary-button">
+                Uitloggen
+            </button>
+
+        </header>
+
+
+        <main class="content">
+
+            <h2>Kies een taal</h2>
+
+            <div class="language-grid">
+
+                <button
+                    class="language-card"
+                    data-language="frans">
+
+                    <span class="language-icon">🇫🇷</span>
+
+                    <span class="language-name">
+                        Frans
+                    </span>
+
+                    <span class="language-description">
+                        Woorden en hoofdstukken
+                    </span>
+
+                </button>
+
+
+                <button
+                    class="language-card"
+                    data-language="engels">
+
+                    <span class="language-icon">🇬🇧</span>
+
+                    <span class="language-name">
+                        Engels
+                    </span>
+
+                    <span class="language-description">
+                        Woorden en hoofdstukken
+                    </span>
+
+                </button>
+
+            </div>
+
+        </main>
+
+    </section>
+
+
+    <!-- TAAL -->
+    <section id="languageScreen" class="screen hidden">
+
+        <header class="topbar">
+
+            <button id="backHomeButton" class="back-button">
+                ←
+            </button>
+
+            <div>
+                <h1 id="languageTitle">
+                    Frans
+                </h1>
+
+                <p id="languageSubtitle">
+                    Hoofdstukken
+                </p>
+            </div>
+
+        </header>
+
+
+        <main class="content">
+
+            <div class="section-header">
+
+                <h2>Hoofdstukken</h2>
+
+                <button
+                    id="addChapterButton"
+                    class="primary-button small-button">
+
+                    + Hoofdstuk
+
+                </button>
+
+            </div>
+
+
+            <div id="chaptersList" class="chapters-list">
+
+                <!-- Hoofdstukken komen hier -->
+
+            </div>
+
+        </main>
+
+    </section>
+
+
+    <!-- HOOFDSTUK -->
+    <section id="chapterScreen" class="screen hidden">
+
+        <header class="topbar">
+
+            <button id="backLanguageButton" class="back-button">
+                ←
+            </button>
+
+            <div>
+                <h1 id="chapterTitle">
+                    Hoofdstuk
+                </h1>
+
+                <p id="chapterSubtitle">
+                    Woorden
+                </p>
+            </div>
+
+        </header>
+
+
+        <main class="content">
+
+            <div class="section-header">
+
+                <h2>Woorden</h2>
+
+                <button
+                    id="addWordButton"
+                    class="primary-button small-button">
+
+                    + Woord
+
+                </button>
+
+            </div>
+
+
+            <div id="wordsList" class="words-list">
+
+                <!-- Woorden komen hier -->
+
+            </div>
+
+        </main>
+
+    </section>
+
+
+    <!-- MODAL HOOFDSTUK -->
+    <div id="chapterModal" class="modal hidden">
+
+        <div class="modal-card">
+
+            <h2>Hoofdstuk toevoegen</h2>
+
+            <label for="chapterName">
+                Naam van het hoofdstuk
+            </label>
+
+            <input
+                type="text"
+                id="chapterName"
+                placeholder="Bijvoorbeeld Hoofdstuk 1"
+            >
+
+            <div class="modal-actions">
+
+                <button
+                    id="cancelChapterButton"
+                    class="secondary-button">
+
+                    Annuleren
+
+                </button>
+
+                <button
+                    id="saveChapterButton"
+                    class="primary-button">
+
+                    Opslaan
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- MODAL WOORD -->
+    <div id="wordModal" class="modal hidden">
+
+        <div class="modal-card">
+
+            <h2>Woord toevoegen</h2>
+
+            <label for="dutchWord">
+                Nederlands
+            </label>
+
+            <input
+                type="text"
+                id="dutchWord"
+                placeholder="Bijvoorbeeld de hond"
+            >
+
+            <label for="translatedWord">
+                Vertaling
+            </label>
+
+            <input
+                type="text"
+                id="translatedWord"
+                placeholder="Bijvoorbeeld le chien"
+            >
+
+            <div class="modal-actions">
+
+                <button
+                    id="cancelWordButton"
+                    class="secondary-button">
+
+                    Annuleren
+
+                </button>
+
+                <button
+                    id="saveWordButton"
+                    class="primary-button">
+
+                    Opslaan
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script src="config.js"></script>
+<script src="app.js"></script>
+
 </body>
 </html>

@@ -19,54 +19,54 @@
 
 <div id="app">
 
-    <!-- LOGIN -->
-    <section id="loginScreen" class="screen">
+  <section id="loginScreen" class="screen">
+
+    <main class="content">
 
         <div class="login-card">
 
-            <div class="logo">V</div>
-
             <h1>Vocabulaire</h1>
 
-            <p class="subtitle">
-                Frans & Engels
+            <p class="login-subtitle">
+                Log in om verder te gaan
             </p>
 
-            <form id="loginForm">
+            <label for="loginEmail">
+                E-mail
+            </label>
 
-                <label for="email">
-                    E-mailadres
-                </label>
+            <input
+                type="email"
+                id="loginEmail"
+                placeholder="jouw@email.be"
+                autocomplete="email">
 
-                <input
-                    type="email"
-                    id="email"
-                    autocomplete="email"
-                    required
-                >
+            <label for="loginPassword">
+                Wachtwoord
+            </label>
 
-                <label for="password">
-                    Wachtwoord
-                </label>
+            <input
+                type="password"
+                id="loginPassword"
+                placeholder="Wachtwoord"
+                autocomplete="current-password">
 
-                <input
-                    type="password"
-                    id="password"
-                    autocomplete="current-password"
-                    required
-                >
+            <button
+                id="loginButton"
+                class="primary-button">
+                Inloggen
+            </button>
 
-                <button type="submit" class="primary-button">
-                    Inloggen
-                </button>
-
-                <p id="loginError" class="error-message"></p>
-
-            </form>
+            <div
+                id="loginError"
+                class="login-error">
+            </div>
 
         </div>
 
-    </section>
+    </main>
+
+</section>
 
 
     <!-- HOOFDSCHERM -->

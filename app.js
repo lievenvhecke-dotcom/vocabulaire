@@ -2006,5 +2006,3 @@ document
             .classList.remove("hidden");
 
     });
-
-toonIngelogdeGebruiker();

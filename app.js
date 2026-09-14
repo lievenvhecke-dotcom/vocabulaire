@@ -1072,44 +1072,117 @@ async function selecteerOefenWoorden() {
             );
 
 
-        // Gewicht berekenen
-        const gewogenWoorden =
-            woordenHoofdstuk.map(woord => {
+// Gewicht berekenen
+const gewogenWoorden =
+    woordenHoofdstuk.map(woord => {
 
-                const stat =
-                    statistiekMap[
-                        woord.id
-                    ];
-
-
-                if (!stat) {
-
-                    return {
-                        woord: woord,
-                        gewicht: 5
-                    };
-
-                }
+        const stat =
+            statistiekMap[
+                woord.id
+            ];
 
 
-                const juist =
-                    stat.juiste_antwoorden || 0;
+        // Nieuw woord
+        if (!stat) {
 
-                const fout =
-                    stat.foute_antwoorden || 0;
+            return {
+                woord: woord,
+                gewicht: 5
+            };
 
-                const totaal =
-                    juist + fout;
+        }
 
 
-                if (totaal === 0) {
+        const juist =
+            stat.juiste_antwoorden || 0;
 
-                    return {
-                        woord: woord,
-                        gewicht: 5
-                    };
+        const fout =
+            stat.foute_antwoorden || 0;
 
-                }
+        const totaal =
+            juist + fout;
+
+
+        // Nog nooit echt geoefend
+        if (totaal === 0) {
+
+            return {
+                woord: woord,
+                gewicht: 5
+            };
+
+        }
+
+
+        // =========================
+        // 1. FOUTPERCENTAGE
+        // =========================
+
+        const foutPercentage =
+            fout / totaal;
+
+
+        // 1 = gemakkelijk
+        // 10 = zeer moeilijk
+        const moeilijkheidsGewicht =
+            1 +
+            (foutPercentage * 9);
+
+
+        // =========================
+        // 2. HOELANG NIET GEOEFEND
+        // =========================
+
+        let dagenSindsOefening = 0;
+
+        if (stat.laatste_oefening) {
+
+            const laatsteOefening =
+                new Date(
+                    stat.laatste_oefening
+                );
+
+            const nu =
+                new Date();
+
+            const verschil =
+                nu.getTime() -
+                laatsteOefening.getTime();
+
+            dagenSindsOefening =
+                verschil /
+                (1000 * 60 * 60 * 24);
+
+        }
+
+
+        // Na 14 dagen maximaal 2x zoveel gewicht
+        const recencyGewicht =
+            1 +
+            Math.min(
+                Math.max(
+                    dagenSindsOefening,
+                    0
+                ) / 14,
+                1
+            );
+
+
+        // =========================
+        // 3. COMBINEREN
+        // =========================
+
+        const gewicht =
+            moeilijkheidsGewicht *
+            recencyGewicht;
+
+
+        return {
+            woord: woord,
+            gewicht: gewicht
+        };
+
+    });
 
 
                 const foutPercentage =

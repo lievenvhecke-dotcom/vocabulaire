@@ -853,6 +853,7 @@ document
                     : "Engels";
 
         await laadOefenHoofdstukken();
+        await updateOefenAantal();
 
     });
 
@@ -902,3 +903,139 @@ async function laadOefenHoofdstukken() {
 
     });
 }
+
+let gekozenPercentage = 75;
+
+document
+    .querySelectorAll(".percentage-button")
+    .forEach(button => {
+
+        button.addEventListener("click", function () {
+
+            document
+                .querySelectorAll(".percentage-button")
+                .forEach(b => {
+                    b.classList.remove("selected");
+                });
+
+            this.classList.add("selected");
+
+            gekozenPercentage =
+                Number(
+                    this.dataset.percentage
+                );
+
+            updateOefenAantal();
+
+        });
+
+    });
+
+async function updateOefenAantal() {
+
+    const chapterId =
+        document.getElementById(
+            "practiceChapter"
+        ).value;
+
+    let query =
+        supabaseClient
+            .from("woorden")
+            .select("id", {
+                count: "exact",
+                head: true
+            });
+
+    if (chapterId !== "all") {
+
+        query =
+            query.eq(
+                "hoofdstuk_id",
+                chapterId
+            );
+
+    } else {
+
+        // Alle hoofdstukken van de huidige taal
+        const {
+            data: hoofdstukken,
+            error
+        } = await supabaseClient
+            .from("hoofdstukken")
+            .select("id")
+            .eq("taal", huidigeTaal);
+
+        if (error) {
+
+            console.error(error);
+
+            return;
+        }
+
+        const ids =
+            hoofdstukken.map(
+                hoofdstuk => hoofdstuk.id
+            );
+
+        if (ids.length === 0) {
+
+            document
+                .getElementById(
+                    "practiceWordCount"
+                )
+                .textContent =
+                    "Nog geen woorden.";
+
+            return;
+
+        }
+
+        query =
+            query.in(
+                "hoofdstuk_id",
+                ids
+            );
+
+    }
+
+    const {
+        count,
+        error
+    } = await query;
+
+    if (error) {
+
+        console.error(
+            "Fout bij tellen woorden:",
+            error
+        );
+
+        return;
+    }
+
+    const aantal =
+        Math.max(
+            1,
+            Math.ceil(
+                count *
+                gekozenPercentage /
+                100
+            )
+        );
+
+    document
+        .getElementById(
+            "practiceWordCount"
+        )
+        .textContent =
+            `${count} woorden beschikbaar → ` +
+            `${aantal} woorden worden geoefend.`;
+}
+
+document
+    .getElementById("practiceChapter")
+    .addEventListener("change", function () {
+
+        updateOefenAantal();
+
+    });

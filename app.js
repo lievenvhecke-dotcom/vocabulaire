@@ -236,11 +236,7 @@ const gebruikerId =
     await huidigeGebruikerId();
 
 if (!gebruikerId) {
-
-    alert(
-        "Je bent niet ingelogd."
-    );
-
+    alert("Je bent niet ingelogd.");
     return;
 }
 
@@ -255,16 +251,11 @@ const {
         volgorde: volgorde
     });
 
-    if (error) {
-
-        chaptersList.innerHTML =
-            "<p>Er ging iets mis bij het laden.</p>";
-
-        console.error(error);
-
-        return;
-    }
-
+if (error) {
+    console.error("Fout bij toevoegen hoofdstuk:", error);
+    alert("Hoofdstuk toevoegen mislukt.");
+    return;
+}
     chaptersList.innerHTML = "";
 
     if (!data || data.length === 0) {

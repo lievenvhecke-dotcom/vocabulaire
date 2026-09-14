@@ -832,3 +832,73 @@ function escapeHtml(value) {
    ========================= */
 
 controleerSessie();
+
+document
+    .getElementById("practiceButton")
+    .addEventListener("click", async function () {
+
+        document
+            .getElementById("languageScreen")
+            .classList.add("hidden");
+
+        document
+            .getElementById("practiceSetupScreen")
+            .classList.remove("hidden");
+
+        document
+            .getElementById("practiceLanguageLabel")
+            .textContent =
+                huidigeTaal === "frans"
+                    ? "Frans"
+                    : "Engels";
+
+        await laadOefenHoofdstukken();
+
+    });
+
+async function laadOefenHoofdstukken() {
+
+    const select =
+        document.getElementById(
+            "practiceChapter"
+        );
+
+    select.innerHTML =
+        '<option value="all">Alle hoofdstukken</option>';
+
+    const {
+        data,
+        error
+    } = await supabaseClient
+        .from("hoofdstukken")
+        .select("*")
+        .eq("taal", huidigeTaal)
+        .order("volgorde", {
+            ascending: true
+        });
+
+    if (error) {
+
+        console.error(
+            "Fout bij laden oefenhoofdstukken:",
+            error
+        );
+
+        return;
+    }
+
+    data.forEach(hoofdstuk => {
+
+        const option =
+            document.createElement("option");
+
+        option.value =
+            hoofdstuk.id;
+
+        option.textContent =
+            hoofdstuk.naam;
+
+        select.appendChild(option);
+
+    });
+}

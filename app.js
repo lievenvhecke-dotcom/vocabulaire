@@ -864,8 +864,7 @@ async function laadOefenHoofdstukken() {
             "practiceChapter"
         );
 
-    select.innerHTML =
-        '<option value="all">Alle hoofdstukken</option>';
+    select.innerHTML = "";
 
     const {
         data,
@@ -933,10 +932,15 @@ document
 
 async function updateOefenAantal() {
 
-    const chapterId =
+    const select =
         document.getElementById(
             "practiceChapter"
-        ).value;
+        );
+
+    const geselecteerdeIds =
+        Array.from(
+            select.selectedOptions
+        ).map(option => option.value);
 
     let query =
         supabaseClient
@@ -946,17 +950,17 @@ async function updateOefenAantal() {
                 head: true
             });
 
-    if (chapterId !== "all") {
+    // Geen selectie = alle hoofdstukken
+    if (geselecteerdeIds.length > 0) {
 
         query =
-            query.eq(
+            query.in(
                 "hoofdstuk_id",
-                chapterId
+                geselecteerdeIds
             );
 
     } else {
 
-        // Alle hoofdstukken van de huidige taal
         const {
             data: hoofdstukken,
             error
@@ -984,10 +988,9 @@ async function updateOefenAantal() {
                     "practiceWordCount"
                 )
                 .textContent =
-                    "Nog geen woorden.";
+                    "Nog geen hoofdstukken.";
 
             return;
-
         }
 
         query =
@@ -995,7 +998,6 @@ async function updateOefenAantal() {
                 "hoofdstuk_id",
                 ids
             );
-
     }
 
     const {
@@ -1009,6 +1011,18 @@ async function updateOefenAantal() {
             "Fout bij tellen woorden:",
             error
         );
+
+        return;
+    }
+
+    if (!count) {
+
+        document
+            .getElementById(
+                "practiceWordCount"
+            )
+            .textContent =
+                "Geen woorden beschikbaar.";
 
         return;
     }
@@ -1031,11 +1045,4 @@ async function updateOefenAantal() {
             `${count} woorden beschikbaar → ` +
             `${aantal} woorden worden geoefend.`;
 }
-
-document
-    .getElementById("practiceChapter")
-    .addEventListener("change", function () {
-
-        updateOefenAantal();
-
-    });
+);

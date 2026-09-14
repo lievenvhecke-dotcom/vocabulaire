@@ -628,3 +628,77 @@ input:focus {
         font-size: 26px;
     }
 }
+.practice-list-card {
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 20px;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+}
+
+.practice-word-item {
+    display: grid;
+    grid-template-columns: 35px 1fr 1fr 30px;
+    gap: 12px;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.practice-word-number {
+    color: #777;
+}
+
+.practice-word-dutch {
+    font-weight: 500;
+}
+
+.practice-word-answer {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+}
+
+.practice-word-feedback {
+    font-size: 20px;
+    text-align: center;
+}
+
+#checkAllAnswersButton {
+    margin-top: 25px;
+    width: 100%;
+}
+
+.practice-result {
+    margin-top: 20px;
+    text-align: center;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+@media (max-width: 600px) {
+
+    .practice-list-card {
+        margin: 10px 0;
+        padding: 15px;
+    }
+
+    .practice-word-item {
+        grid-template-columns: 25px 1fr;
+        gap: 8px;
+    }
+
+    .practice-word-answer {
+        grid-column: 2;
+    }
+
+    .practice-word-feedback {
+        grid-column: 2;
+        text-align: left;
+    }
+
+}

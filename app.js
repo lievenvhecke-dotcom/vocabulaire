@@ -21,7 +21,6 @@ const homeScreen = document.getElementById("homeScreen");
 const languageScreen = document.getElementById("languageScreen");
 const chapterScreen = document.getElementById("chapterScreen");
 
-const loginForm = document.getElementById("loginForm");
 const loginError = document.getElementById("loginError");
 
 const logoutButton =
@@ -65,40 +64,6 @@ function toonScherm(screen) {
 
     screen.classList.remove("hidden");
 }
-
-
-/* =========================
-   LOGIN
-   ========================= */
-
-loginForm.addEventListener("submit", async function (event) {
-
-    event.preventDefault();
-
-    loginError.textContent = "";
-
-    const email =
-        document.getElementById("email").value.trim();
-
-    const password =
-        document.getElementById("password").value;
-
-    const { error } =
-        await supabaseClient.auth.signInWithPassword({
-            email,
-            password
-        });
-
-    if (error) {
-
-        loginError.textContent =
-            "Inloggen mislukt. Controleer je e-mailadres en wachtwoord.";
-
-        return;
-    }
-
-    toonScherm(homeScreen);
-});
 
 
 /* =========================

@@ -534,3 +534,22 @@ input:focus {
     font-size: 16px;
     padding: 4px;
 }
+
+.section-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+@media (max-width: 600px) {
+
+    .section-header {
+        align-items: flex-start;
+    }
+
+    .section-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+}

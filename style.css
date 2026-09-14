@@ -987,3 +987,7 @@ input:focus {
     margin-left: auto;
     margin-right: 15px;
 }
+
+#mainTopbar {
+    display: none;
+}

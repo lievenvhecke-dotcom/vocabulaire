@@ -121,25 +121,34 @@ logoutButton.addEventListener("click", async function () {
             "Fout bij uitloggen:",
             error
         );
+
         alert(
             "Uitloggen is mislukt."
         );
+
         return;
     }
 
-    // Ingelogde gebruiker uit header verwijderen
-   const loggedInUser =
-    document.getElementById("loggedInUser");
+    // Mailadres uit header verwijderen
+    const loggedInUser =
+        document.getElementById("loggedInUser");
 
-if (loggedInUser) {
-    loggedInUser.textContent = "";
-}
+    if (loggedInUser) {
+        loggedInUser.textContent = "";
+    }
 
+    // Header verbergen
+    const mainTopbar =
+        document.getElementById("mainTopbar");
 
-toonScherm(loginScreen);
+    if (mainTopbar) {
+        mainTopbar.style.display = "none";
+    }
+
+    // Login-scherm tonen
+    toonScherm(loginScreen);
 
 });
-
 document
     .getElementById("loginButton")
     .addEventListener("click", async function () {
@@ -192,6 +201,9 @@ document
         // Ingelogde gebruiker tonen
         await toonIngelogdeGebruiker();
 
+        document
+    .getElementById("mainTopbar")
+    .style.display = "flex";
         
         // Sessie controleren en app laden
         await controleerSessie();

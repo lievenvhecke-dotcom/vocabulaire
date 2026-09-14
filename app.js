@@ -128,17 +128,18 @@ logoutButton.addEventListener("click", async function () {
     }
 
     // Ingelogde gebruiker uit header verwijderen
-    const loggedInUser =
-        document.getElementById(
-            "loggedInUser"
-        );
+   const loggedInUser =
+    document.getElementById("loggedInUser");
 
-    if (loggedInUser) {
-        loggedInUser.textContent = "";
-    }
+if (loggedInUser) {
+    loggedInUser.textContent = "";
+}
 
-    // Login scherm tonen
-    toonScherm(loginScreen);
+document
+    .getElementById("mainTopbar")
+    .style.display = "none";
+
+toonScherm(loginScreen);
 
 });
 
@@ -194,8 +195,32 @@ document
         // Ingelogde gebruiker tonen
         await toonIngelogdeGebruiker();
 
+document
+    .getElementById("mainTopbar")
+    .style.display = "flex";
+        
         // Sessie controleren en app laden
         await controleerSessie();
+
+    });
+
+/* =========================
+   ENTER = INLOGGEN
+   ========================= */
+
+document
+    .getElementById("loginPassword")
+    .addEventListener("keydown", function (event) {
+
+        if (event.key === "Enter") {
+
+            event.preventDefault();
+
+            document
+                .getElementById("loginButton")
+                .click();
+
+        }
 
     });
 

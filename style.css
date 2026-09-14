@@ -579,3 +579,52 @@ input:focus {
     color: white;
     border-color: #e67e22;
 }
+
+.practice-question-card {
+    max-width: 600px;
+    margin: 30px auto;
+    padding: 30px;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    text-align: center;
+}
+
+.practice-label {
+    color: #777;
+    margin-bottom: 10px;
+}
+
+#practiceQuestion {
+    font-size: 32px;
+    margin: 20px 0 30px;
+}
+
+.practice-answer {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 14px;
+    font-size: 18px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    margin-bottom: 15px;
+}
+
+.practice-feedback {
+    min-height: 50px;
+    margin-top: 20px;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+@media (max-width: 600px) {
+
+    .practice-question-card {
+        margin: 15px 0;
+        padding: 20px;
+    }
+
+    #practiceQuestion {
+        font-size: 26px;
+    }
+}

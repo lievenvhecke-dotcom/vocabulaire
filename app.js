@@ -1318,8 +1318,14 @@ let oefenWoorden = [];
 
 
 document
+document
     .getElementById("startPracticeButton")
     .addEventListener("click", async function () {
+
+        // Controleer-knop opnieuw activeren
+        document
+            .getElementById("checkAllAnswersButton")
+            .disabled = false;
 
         oefenWoorden =
             await selecteerOefenWoorden();

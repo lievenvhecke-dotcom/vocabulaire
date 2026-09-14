@@ -553,3 +553,23 @@ input:focus {
     }
 
 }
+
+#practiceChapter {
+    width: 100%;
+    min-height: 150px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    background: white;
+    font-size: 16px;
+}
+
+#practiceChapter option {
+    padding: 8px;
+}
+
+.field-hint {
+    margin-top: 6px;
+    color: #777;
+    font-size: 13px;
+}

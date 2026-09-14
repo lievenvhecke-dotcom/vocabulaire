@@ -1071,3 +1071,294 @@ async function updateOefenAantal() {
             `${hoofdstukIds.length} ${hoofdstukTekst} → ` +
             `${totaalOefenen} woorden worden geoefend.`;
 }
+
+async function selecteerOefenWoorden() {
+
+    const select =
+        document.getElementById(
+            "practiceChapter"
+        );
+
+    const geselecteerdeIds =
+        Array.from(
+            select.selectedOptions
+        ).map(option => option.value);
+
+
+    // Geen selectie = alle hoofdstukken
+    let hoofdstukIds =
+        geselecteerdeIds;
+
+    if (hoofdstukIds.length === 0) {
+
+        const {
+            data: hoofdstukken,
+            error
+        } = await supabaseClient
+            .from("hoofdstukken")
+            .select("id")
+            .eq("taal", huidigeTaal)
+            .order("volgorde", {
+                ascending: true
+            });
+
+        if (error) {
+            console.error(error);
+            return [];
+        }
+
+        hoofdstukIds =
+            hoofdstukken.map(
+                hoofdstuk => hoofdstuk.id
+            );
+    }
+
+
+    // Alle woorden ophalen
+    const {
+        data: woorden,
+        error: woordenError
+    } = await supabaseClient
+        .from("woorden")
+        .select("*")
+        .in(
+            "hoofdstuk_id",
+            hoofdstukIds
+        );
+
+    if (woordenError) {
+
+        console.error(
+            "Fout bij ophalen woorden:",
+            woordenError
+        );
+
+        return [];
+    }
+
+
+    if (!woorden || woorden.length === 0) {
+        return [];
+    }
+
+
+    // Statistieken ophalen
+    const woordIds =
+        woorden.map(
+            woord => woord.id
+        );
+
+    const {
+        data: statistieken,
+        error: statistiekenError
+    } = await supabaseClient
+        .from("woord_statistieken")
+        .select("*")
+        .in(
+            "woord_id",
+            woordIds
+        );
+
+    if (statistiekenError) {
+
+        console.error(
+            "Fout bij ophalen statistieken:",
+            statistiekenError
+        );
+
+        return [];
+    }
+
+
+    // Statistieken makkelijk terugvindbaar maken
+    const statistiekMap = {};
+
+    (statistieken || []).forEach(stat => {
+
+        statistiekMap[stat.woord_id] =
+            stat;
+
+    });
+
+
+    const geselecteerdeWoorden = [];
+
+
+    // Per hoofdstuk selecteren
+    for (
+        const hoofdstukId
+        of hoofdstukIds
+    ) {
+
+        const woordenHoofdstuk =
+            woorden.filter(
+                woord =>
+                    woord.hoofdstuk_id ===
+                    hoofdstukId
+            );
+
+
+        if (
+            woordenHoofdstuk.length === 0
+        ) {
+            continue;
+        }
+
+
+        const aantalTeOefenen =
+            Math.max(
+                1,
+                Math.ceil(
+                    woordenHoofdstuk.length *
+                    gekozenPercentage /
+                    100
+                )
+            );
+
+
+        // Gewicht berekenen
+        const gewogenWoorden =
+            woordenHoofdstuk.map(woord => {
+
+                const stat =
+                    statistiekMap[
+                        woord.id
+                    ];
+
+
+                if (!stat) {
+
+                    return {
+                        woord: woord,
+                        gewicht: 5
+                    };
+
+                }
+
+
+                const juist =
+                    stat.juiste_antwoorden || 0;
+
+                const fout =
+                    stat.foute_antwoorden || 0;
+
+                const totaal =
+                    juist + fout;
+
+
+                if (totaal === 0) {
+
+                    return {
+                        woord: woord,
+                        gewicht: 5
+                    };
+
+                }
+
+
+                const foutPercentage =
+                    fout / totaal;
+
+
+                // Moeilijke woorden krijgen
+                // een groter gewicht
+                const gewicht =
+                    1 +
+                    (foutPercentage * 9);
+
+
+                return {
+                    woord: woord,
+                    gewicht: gewicht
+                };
+
+            });
+
+
+        // Gewogen willekeurige selectie
+        const gekozen =
+            gewogenSelectie(
+                gewogenWoorden,
+                aantalTeOefenen
+            );
+
+
+        geselecteerdeWoorden.push(
+            ...gekozen
+        );
+
+    }
+
+
+    return geselecteerdeWoorden;
+}
+
+function gewogenSelectie(
+    items,
+    aantal
+) {
+
+    const resultaat = [];
+    const over =
+        [...items];
+
+
+    while (
+        resultaat.length < aantal &&
+        over.length > 0
+    ) {
+
+        const totaalGewicht =
+            over.reduce(
+                (som, item) =>
+                    som + item.gewicht,
+                0
+            );
+
+
+        let willekeurig =
+            Math.random() *
+            totaalGewicht;
+
+
+        let gekozenIndex = 0;
+
+
+        for (
+            let i = 0;
+            i < over.length;
+            i++
+        ) {
+
+            willekeurig -=
+                over[i].gewicht;
+
+
+            if (
+                willekeurig <= 0
+            ) {
+
+                gekozenIndex = i;
+                break;
+
+            }
+
+        }
+
+
+        const gekozen =
+            over.splice(
+                gekozenIndex,
+                1
+            )[0];
+
+
+        resultaat.push(
+            gekozen.woord
+        );
+
+    }
+
+
+    return resultaat;
+}

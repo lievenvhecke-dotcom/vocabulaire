@@ -113,8 +113,31 @@ function toonScherm(screen) {
 
 logoutButton.addEventListener("click", async function () {
 
-    await supabaseClient.auth.signOut();
+    const { error } =
+        await supabaseClient.auth.signOut();
 
+    if (error) {
+        console.error(
+            "Fout bij uitloggen:",
+            error
+        );
+        alert(
+            "Uitloggen is mislukt."
+        );
+        return;
+    }
+
+    // Ingelogde gebruiker uit header verwijderen
+    const loggedInUser =
+        document.getElementById(
+            "loggedInUser"
+        );
+
+    if (loggedInUser) {
+        loggedInUser.textContent = "";
+    }
+
+    // Login scherm tonen
     toonScherm(loginScreen);
 
 });
@@ -149,10 +172,11 @@ document
 
         const {
             error
-        } = await supabaseClient.auth.signInWithPassword({
-            email: email,
-            password: password
-        });
+        } =
+            await supabaseClient.auth.signInWithPassword({
+                email: email,
+                password: password
+            });
 
         if (error) {
 
@@ -167,6 +191,10 @@ document
             return;
         }
 
+        // Ingelogde gebruiker tonen
+        await toonIngelogdeGebruiker();
+
+        // Sessie controleren en app laden
         await controleerSessie();
 
     });

@@ -232,30 +232,30 @@ async function laadHoofdstukken() {
     chaptersList.innerHTML =
         "<p>Laden...</p>";
 
-const gebruikerId =
-    await huidigeGebruikerId();
+    const {
+        data,
+        error
+    } = await supabaseClient
+        .from("hoofdstukken")
+        .select("*")
+        .eq("taal", huidigeTaal)
+        .order("volgorde", {
+            ascending: true
+        });
 
-if (!gebruikerId) {
-    alert("Je bent niet ingelogd.");
-    return;
-}
+    if (error) {
 
-const {
-    error
-} = await supabaseClient
-    .from("hoofdstukken")
-    .insert({
-        gebruiker_id: gebruikerId,
-        taal: huidigeTaal,
-        naam: naam,
-        volgorde: volgorde
-    });
+        chaptersList.innerHTML =
+            "<p>Er ging iets mis bij het laden.</p>";
 
-if (error) {
-    console.error("Fout bij toevoegen hoofdstuk:", error);
-    alert("Hoofdstuk toevoegen mislukt.");
-    return;
-}
+        console.error(
+            "Fout bij laden hoofdstukken:",
+            error
+        );
+
+        return;
+    }
+
     chaptersList.innerHTML = "";
 
     if (!data || data.length === 0) {
@@ -306,28 +306,6 @@ if (error) {
             openHoofdstuk(hoofdstuk);
 
         });
-
-        // Bewerken
-        item
-            .querySelector(".edit-chapter-button")
-            .addEventListener("click", function (event) {
-
-                event.stopPropagation();
-
-                bewerkHoofdstuk(hoofdstuk);
-
-            });
-
-        // Verwijderen
-        item
-            .querySelector(".delete-chapter-button")
-            .addEventListener("click", function (event) {
-
-                event.stopPropagation();
-
-                verwijderHoofdstuk(hoofdstuk);
-
-            });
 
         chaptersList.appendChild(item);
 

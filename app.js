@@ -1728,14 +1728,12 @@ async function slaAlleWoordStatistiekenOp(
         return;
     }
 
-
     const woordIds =
         statistieken.map(
             stat => stat.woordId
         );
 
-
-    // Bestaande statistieken in één keer ophalen
+    // Alleen statistieken van deze gebruiker ophalen
     const {
         data: bestaandeStatistieken,
         error: selectError
@@ -1745,8 +1743,11 @@ async function slaAlleWoordStatistiekenOp(
         .in(
             "woord_id",
             woordIds
+        )
+        .eq(
+            "gebruiker_id",
+            gebruikerId
         );
-
 
     if (selectError) {
 
@@ -1758,9 +1759,7 @@ async function slaAlleWoordStatistiekenOp(
         return;
     }
 
-
     const bestaandeMap = {};
-
 
     (bestaandeStatistieken || []).forEach(
         stat => {
@@ -1772,10 +1771,8 @@ async function slaAlleWoordStatistiekenOp(
         }
     );
 
-
     const nieuweStatistieken = [];
     const updates = [];
-
 
     statistieken.forEach(stat => {
 
@@ -1784,27 +1781,27 @@ async function slaAlleWoordStatistiekenOp(
                 stat.woordId
             ];
 
-
         if (!bestaande) {
 
-nieuweStatistieken.push({
+            nieuweStatistieken.push({
 
-    gebruiker_id:
-        gebruikerId,
+                gebruiker_id:
+                    gebruikerId,
 
-    woord_id:
-        stat.woordId,
+                woord_id:
+                    stat.woordId,
 
-    juiste_antwoorden:
-        stat.juist ? 1 : 0,
+                juiste_antwoorden:
+                    stat.juist ? 1 : 0,
 
-    foute_antwoorden:
-        stat.juist ? 0 : 1,
+                foute_antwoorden:
+                    stat.juist ? 0 : 1,
 
-    laatste_oefening:
-        new Date().toISOString()
+                laatste_oefening:
+                    new Date().toISOString()
 
-});
+            });
+
         } else {
 
             updates.push({
@@ -1826,8 +1823,7 @@ nieuweStatistieken.push({
 
     });
 
-
-    // Nieuwe statistieken in één keer toevoegen
+    // Nieuwe statistieken toevoegen
     if (
         nieuweStatistieken.length > 0
     ) {
@@ -1840,7 +1836,6 @@ nieuweStatistieken.push({
                 nieuweStatistieken
             );
 
-
         if (error) {
 
             console.error(
@@ -1851,7 +1846,6 @@ nieuweStatistieken.push({
         }
 
     }
-
 
     // Bestaande statistieken bijwerken
     for (const update of updates) {
@@ -1875,8 +1869,11 @@ nieuweStatistieken.push({
             .eq(
                 "woord_id",
                 update.woordId
+            )
+            .eq(
+                "gebruiker_id",
+                gebruikerId
             );
-
 
         if (error) {
 

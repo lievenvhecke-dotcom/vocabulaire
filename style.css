@@ -980,3 +980,10 @@ input:focus {
     }
 
 }
+.logged-in-user {
+    font-size: 14px;
+    color: var(--grijs);
+    white-space: nowrap;
+    margin-left: auto;
+    margin-right: 15px;
+}

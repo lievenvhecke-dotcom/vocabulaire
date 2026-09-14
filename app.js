@@ -616,6 +616,109 @@ async function laadWoorden() {
     });
 }
 
+async function bewerkWoord(woord) {
+
+    const nieuwNederlands =
+        prompt(
+            "Nederlands:",
+            woord.nederlands
+        );
+
+    if (nieuwNederlands === null) {
+        return;
+    }
+
+    const nieuwVertaling =
+        prompt(
+            "Vertaling:",
+            woord.vertaling
+        );
+
+    if (nieuwVertaling === null) {
+        return;
+    }
+
+    const nederlands =
+        nieuwNederlands.trim();
+
+    const vertaling =
+        nieuwVertaling.trim();
+
+    if (!nederlands || !vertaling) {
+
+        alert(
+            "Beide velden moeten ingevuld zijn."
+        );
+
+        return;
+    }
+
+    const {
+        error
+    } = await supabaseClient
+        .from("woorden")
+        .update({
+            nederlands: nederlands,
+            vertaling: vertaling
+        })
+        .eq("id", woord.id);
+
+    if (error) {
+
+        console.error(
+            "Fout bij wijzigen woord:",
+            error
+        );
+
+        alert(
+            "Fout bij wijzigen:\n\n" +
+            error.message
+        );
+
+        return;
+    }
+
+    await laadWoorden();
+}
+
+
+async function verwijderWoord(woord) {
+
+    const bevestiging =
+        confirm(
+            'Ben je zeker dat je "' +
+            woord.nederlands +
+            '" wilt verwijderen?'
+        );
+
+    if (!bevestiging) {
+        return;
+    }
+
+    const {
+        error
+    } = await supabaseClient
+        .from("woorden")
+        .delete()
+        .eq("id", woord.id);
+
+    if (error) {
+
+        console.error(
+            "Fout bij verwijderen woord:",
+            error
+        );
+
+        alert(
+            "Fout bij verwijderen:\n\n" +
+            error.message
+        );
+
+        return;
+    }
+
+    await laadWoorden();
+}
 
 /* =========================
    WOORD TOEVOEGEN

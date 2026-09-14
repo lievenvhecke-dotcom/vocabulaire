@@ -11,6 +11,24 @@ const supabaseClient = window.supabase.createClient(
 let huidigeTaal = null;
 let huidigHoofdstuk = null;
 
+async function huidigeGebruikerId() {
+
+    const {
+        data: { user },
+        error
+    } = await supabaseClient.auth.getUser();
+
+    if (error || !user) {
+        console.error(
+            "Geen ingelogde gebruiker:",
+            error
+        );
+
+        return null;
+    }
+
+    return user.id;
+}
 
 /* =========================
    ELEMENTEN
@@ -214,16 +232,28 @@ async function laadHoofdstukken() {
     chaptersList.innerHTML =
         "<p>Laden...</p>";
 
-    const {
-        data,
-        error
-    } = await supabaseClient
-        .from("hoofdstukken")
-        .select("*")
-        .eq("taal", huidigeTaal)
-        .order("volgorde", {
-            ascending: true
-        });
+const gebruikerId =
+    await huidigeGebruikerId();
+
+if (!gebruikerId) {
+
+    alert(
+        "Je bent niet ingelogd."
+    );
+
+    return;
+}
+
+const {
+    error
+} = await supabaseClient
+    .from("hoofdstukken")
+    .insert({
+        gebruiker_id: gebruikerId,
+        taal: huidigeTaal,
+        naam: naam,
+        volgorde: volgorde
+    });
 
     if (error) {
 
@@ -541,19 +571,37 @@ async function laadWoorden() {
     wordsList.innerHTML =
         "<p>Laden...</p>";
 
-    const {
-        data,
-        error
-    } = await supabaseClient
-        .from("woorden")
-        .select("*")
-        .eq(
-            "hoofdstuk_id",
-            huidigHoofdstuk.id
-        )
-        .order("created_at", {
-            ascending: true
-        });
+   const gebruikerId =
+    await huidigeGebruikerId();
+
+if (!gebruikerId) {
+
+    alert(
+        "Je bent niet ingelogd."
+    );
+
+    return;
+}
+
+const {
+    error
+} = await supabaseClient
+    .from("woorden")
+    .insert({
+
+        gebruiker_id:
+            gebruikerId,
+
+        hoofdstuk_id:
+            huidigHoofdstuk.id,
+
+        nederlands:
+            nederlands,
+
+        vertaling:
+            vertaling
+
+    });
 
     if (error) {
 
@@ -1669,6 +1717,18 @@ async function slaAlleWoordStatistiekenOp(
         return;
     }
 
+    const gebruikerId =
+        await huidigeGebruikerId();
+
+    if (!gebruikerId) {
+
+        console.error(
+            "Geen ingelogde gebruiker."
+        );
+
+        return;
+    }
+
 
     const woordIds =
         statistieken.map(
@@ -1728,22 +1788,24 @@ async function slaAlleWoordStatistiekenOp(
 
         if (!bestaande) {
 
-            nieuweStatistieken.push({
+nieuweStatistieken.push({
 
-                woord_id:
-                    stat.woordId,
+    gebruiker_id:
+        gebruikerId,
 
-                juiste_antwoorden:
-                    stat.juist ? 1 : 0,
+    woord_id:
+        stat.woordId,
 
-                foute_antwoorden:
-                    stat.juist ? 0 : 1,
+    juiste_antwoorden:
+        stat.juist ? 1 : 0,
 
-                laatste_oefening:
-                    new Date().toISOString()
+    foute_antwoorden:
+        stat.juist ? 0 : 1,
 
-            });
+    laatste_oefening:
+        new Date().toISOString()
 
+});
         } else {
 
             updates.push({

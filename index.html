@@ -131,6 +131,100 @@
 
     </section>
 
+    <!-- OEFENSCHERM -->
+<section id="practiceSetupScreen" class="screen hidden">
+
+    <header class="topbar">
+
+        <div>
+            <h1>Oefenen</h1>
+            <p id="practiceLanguageLabel">
+                Frans
+            </p>
+        </div>
+
+        <button
+            id="practiceBackButton"
+            class="secondary-button">
+            ← Terug
+        </button>
+
+    </header>
+
+
+    <main class="content">
+
+        <h2>Wat wil je oefenen?</h2>
+
+        <div class="practice-card">
+
+            <label for="practiceChapter">
+                Hoofdstuk
+            </label>
+
+            <select id="practiceChapter">
+                <option value="all">
+                    Alle hoofdstukken
+                </option>
+            </select>
+
+
+            <label>
+                Hoeveel procent van de woorden?
+            </label>
+
+            <div class="percentage-grid">
+
+                <button
+                    class="percentage-button"
+                    data-percentage="25">
+                    25%
+                </button>
+
+                <button
+                    class="percentage-button"
+                    data-percentage="50">
+                    50%
+                </button>
+
+                <button
+                    class="percentage-button selected"
+                    data-percentage="75">
+                    75%
+                </button>
+
+                <button
+                    class="percentage-button"
+                    data-percentage="100">
+                    100%
+                </button>
+
+            </div>
+
+
+            <div
+                id="practiceWordCount"
+                class="practice-info">
+
+                Kies een hoofdstuk om te zien
+                hoeveel woorden geoefend worden.
+                
+            </div>
+
+
+            <button
+                id="startPracticeButton"
+                class="primary-button">
+
+                Start oefening
+
+            </button>
+
+        </div>
+
+    </main>
+
+</section>
 
     <!-- TAAL -->
     <section id="languageScreen" class="screen hidden">
@@ -156,19 +250,31 @@
 
         <main class="content">
 
-            <div class="section-header">
+         <div class="section-header">
 
-                <h2>Hoofdstukken</h2>
+    <h2>Hoofdstukken</h2>
 
-                <button
-                    id="addChapterButton"
-                    class="primary-button small-button">
+    <div class="section-actions">
 
-                    + Hoofdstuk
+        <button
+            id="practiceButton"
+            class="primary-button small-button">
 
-                </button>
+            🧠 Oefenen
 
-            </div>
+        </button>
+
+        <button
+            id="addChapterButton"
+            class="primary-button small-button">
+
+            + Hoofdstuk
+
+        </button>
+
+    </div>
+
+</div>
 
 
             <div id="chaptersList" class="chapters-list">

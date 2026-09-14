@@ -1224,7 +1224,6 @@ function gewogenSelectie(
    ========================= */
 
 let oefenWoorden = [];
-let huidigOefenWoordIndex = 0;
 
 
 document
@@ -1246,8 +1245,6 @@ document
             return;
         }
 
-        huidigOefenWoordIndex = 0;
-
         document
             .getElementById("practiceSetupScreen")
             .classList.add("hidden");
@@ -1256,46 +1253,62 @@ document
             .getElementById("practiceScreen")
             .classList.remove("hidden");
 
-        toonOefenWoord();
+        toonOefenWoorden();
 
     });
 
 
-function toonOefenWoord() {
+function toonOefenWoorden() {
 
-    const woord =
-        oefenWoorden[
-            huidigOefenWoordIndex
-        ];
+    const lijst =
+        document.getElementById(
+            "practiceWordsList"
+        );
+
+    lijst.innerHTML = "";
 
     document
         .getElementById("practiceProgress")
         .textContent =
-            `Vraag ${huidigOefenWoordIndex + 1} van ${oefenWoorden.length}`;
+            `${oefenWoorden.length} woorden`;
 
-    document
-        .getElementById("practiceQuestion")
-        .textContent =
-            woord.nederlands;
+    oefenWoorden.forEach(
+        (woord, index) => {
 
-    document
-        .getElementById("practiceAnswer")
-        .value = "";
+            const item =
+                document.createElement("div");
 
-    document
-        .getElementById("practiceFeedback")
-        .textContent = "";
+            item.className =
+                "practice-word-item";
 
-    document
-        .getElementById("nextQuestionButton")
-        .classList.add("hidden");
+            item.innerHTML = `
 
-    document
-        .getElementById("checkAnswerButton")
-        .classList.remove("hidden");
+                <div class="practice-word-number">
+                    ${index + 1}.
+                </div>
 
-    document
-        .getElementById("practiceAnswer")
-        .focus();
+                <div class="practice-word-dutch">
+                    ${escapeHtml(
+                        woord.nederlands
+                    )}
+                </div>
+
+                <input
+                    type="text"
+                    class="practice-word-answer"
+                    data-word-id="${woord.id}"
+                    autocomplete="off"
+                    placeholder="Vertaling">
+
+                <div
+                    class="practice-word-feedback">
+                </div>
+
+            `;
+
+            lijst.appendChild(item);
+
+        }
+    );
 
 }

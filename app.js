@@ -496,13 +496,25 @@ document
                 .trim();
 
         if (!naam) {
+            return;
+        }
+
+        // Ingelogde gebruiker ophalen
+        const gebruikerId =
+            await huidigeGebruikerId();
+
+        if (!gebruikerId) {
+
+            alert(
+                "Je bent niet ingelogd."
+            );
 
             return;
-
         }
 
         const {
-            data: bestaandeHoofdstukken
+            data: bestaandeHoofdstukken,
+            error: laadFout
         } = await supabaseClient
             .from("hoofdstukken")
             .select("volgorde")
@@ -511,6 +523,20 @@ document
                 ascending: false
             })
             .limit(1);
+
+        if (laadFout) {
+
+            console.error(
+                "Fout bij laden hoofdstukken:",
+                laadFout
+            );
+
+            alert(
+                "Fout bij bepalen van de volgorde."
+            );
+
+            return;
+        }
 
         let volgorde = 1;
 
@@ -529,22 +555,26 @@ document
         } = await supabaseClient
             .from("hoofdstukken")
             .insert({
+                gebruiker_id: gebruikerId,
                 taal: huidigeTaal,
                 naam: naam,
                 volgorde: volgorde
             });
 
-if (error) {
+        if (error) {
 
-    console.error("Fout bij opslaan hoofdstuk:", error);
+            console.error(
+                "Fout bij opslaan hoofdstuk:",
+                error
+            );
 
-    alert(
-        "Fout bij opslaan:\n\n" +
-        error.message
-    );
+            alert(
+                "Fout bij opslaan:\n\n" +
+                error.message
+            );
 
-    return;
-}
+            return;
+        }
 
         chapterModal.classList.add("hidden");
 

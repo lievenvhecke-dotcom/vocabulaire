@@ -1355,7 +1355,8 @@ document
             );
 
         let aantalJuist = 0;
-        const fouten = [];
+
+        const statistieken = [];
 
         for (const item of items) {
 
@@ -1391,49 +1392,55 @@ document
                 gegevenAntwoord.toLowerCase() ===
                 juistAntwoord.toLowerCase();
 
+
             if (isJuist) {
 
                 aantalJuist++;
 
                 feedback.textContent = "✓";
 
-                await slaWoordStatistiekOp(
-                    woord.id,
-                    true
-                );
-
             } else {
 
-                feedback.textContent = "✗";
+                feedback.textContent =
+                    `✗ ${escapeHtml(
+                        woord.vertaling
+                    )}`;
 
-                fouten.push({
-                    nederlands: woord.nederlands,
-                    vertaling: woord.vertaling
-                });
-
-                await slaWoordStatistiekOp(
-                    woord.id,
-                    false
-                );
             }
 
+
             input.disabled = true;
+
+
+            statistieken.push({
+                woordId: woord.id,
+                juist: isJuist
+            });
+
         }
 
-        this.disabled = true;
 
-        toonResultaat(
-            aantalJuist,
-            items.length,
-            fouten
+        // Alles in één keer verwerken
+        await slaAlleWoordStatistiekenOp(
+            statistieken
         );
 
-    });
 
-function toonResultaat(
+        // Knop uitschakelen
+        this.disabled = true;
+
+
+// Resultatenscherm tonen
+toonResultaat(
+    aantalJuist,
+    items.length,
+    statistieken
+);
+
+        function toonResultaat(
     aantalJuist,
     totaal,
-    fouten
+    statistieken
 ) {
 
     const percentage =
@@ -1449,6 +1456,7 @@ function toonResultaat(
         .getElementById("practiceResultScreen")
         .classList.remove("hidden");
 
+
     document
         .getElementById("resultLanguageLabel")
         .textContent =
@@ -1456,22 +1464,25 @@ function toonResultaat(
                 ? "Frans"
                 : "Engels";
 
+
     document
         .getElementById("resultScore")
         .textContent =
             `${aantalJuist} van ${totaal} juist`;
+
 
     document
         .getElementById("resultPercentage")
         .textContent =
             `${percentage}%`;
 
-    let boodschap = "";
+
+    let boodschap;
 
     if (percentage === 100) {
 
         boodschap =
-            "Perfect! 🎉 Alle woorden juist!";
+            "Perfect! 🎉";
 
     } else if (percentage >= 80) {
 
@@ -1481,13 +1492,15 @@ function toonResultaat(
     } else if (percentage >= 60) {
 
         boodschap =
-            "Goed bezig! Nog even oefenen.";
+            "Goed bezig!";
 
     } else {
 
         boodschap =
-            "Nog wat extra oefenen kan helpen. 💪";
+            "Nog even oefenen. 💪";
+
     }
+
 
     document
         .getElementById("resultMessage")
@@ -1503,53 +1516,75 @@ function toonResultaat(
     foutenContainer.innerHTML = "";
 
 
-    if (fouten.length > 0) {
-
-        const titel =
-            document.createElement("h3");
-
-        titel.textContent =
-            "Woorden om opnieuw te oefenen:";
-
-        foutenContainer.appendChild(
-            titel
+    // Alleen foute woorden tonen
+    const fouten =
+        statistieken.filter(
+            stat => !stat.juist
         );
 
 
-        fouten.forEach(fout => {
+    if (fouten.length === 0) {
 
-            const item =
-                document.createElement("div");
-
-            item.className =
-                "result-mistake";
-
-            item.innerHTML = `
-
-                <div class="result-mistake-word">
-                    ${escapeHtml(
-                        fout.nederlands
-                    )}
-                </div>
-
-                <div class="result-mistake-answer">
-                    Juiste antwoord:
-                    ${escapeHtml(
-                        fout.vertaling
-                    )}
-                </div>
-
-            `;
-
-            foutenContainer.appendChild(
-                item
-            );
-
-        });
+        return;
 
     }
+
+
+    const titel =
+        document.createElement("h3");
+
+    titel.textContent =
+        "Deze woorden waren fout:";
+
+    foutenContainer.appendChild(
+        titel
+    );
+
+
+    fouten.forEach(stat => {
+
+        const woord =
+            oefenWoorden.find(
+                w => w.id === stat.woordId
+            );
+
+        if (!woord) {
+            return;
+        }
+
+
+        const item =
+            document.createElement("div");
+
+        item.className =
+            "result-mistake";
+
+        item.innerHTML = `
+
+            <div class="result-mistake-word">
+                ${escapeHtml(
+                    woord.nederlands
+                )}
+            </div>
+
+            <div class="result-mistake-answer">
+                Juiste antwoord:
+                ${escapeHtml(
+                    woord.vertaling
+                )}
+            </div>
+
+        `;
+
+        foutenContainer.appendChild(
+            item
+        );
+
+    });
+
 }
 
+    });
 document
     .getElementById("retryPracticeButton")
     .addEventListener("click", async function () {
@@ -1607,93 +1642,174 @@ document
    STATISTIEK OPSLAAN
    ========================= */
 
-async function slaWoordStatistiekOp(
-    woordId,
-    juist
+async function slaAlleWoordStatistiekenOp(
+    statistieken
 ) {
 
+    if (
+        !statistieken ||
+        statistieken.length === 0
+    ) {
+        return;
+    }
+
+
+    const woordIds =
+        statistieken.map(
+            stat => stat.woordId
+        );
+
+
+    // Bestaande statistieken in één keer ophalen
     const {
-        data: bestaandeStatistiek,
+        data: bestaandeStatistieken,
         error: selectError
     } = await supabaseClient
         .from("woord_statistieken")
         .select("*")
-        .eq("woord_id", woordId)
-        .maybeSingle();
+        .in(
+            "woord_id",
+            woordIds
+        );
+
 
     if (selectError) {
 
         console.error(
-            "Fout bij ophalen statistiek:",
+            "Fout bij ophalen statistieken:",
             selectError
         );
 
         return;
     }
 
-    if (!bestaandeStatistiek) {
 
-        const {
-            error
-        } = await supabaseClient
-            .from("woord_statistieken")
-            .insert({
+    const bestaandeMap = {};
 
-                woord_id: woordId,
+
+    (bestaandeStatistieken || []).forEach(
+        stat => {
+
+            bestaandeMap[
+                stat.woord_id
+            ] = stat;
+
+        }
+    );
+
+
+    const nieuweStatistieken = [];
+    const updates = [];
+
+
+    statistieken.forEach(stat => {
+
+        const bestaande =
+            bestaandeMap[
+                stat.woordId
+            ];
+
+
+        if (!bestaande) {
+
+            nieuweStatistieken.push({
+
+                woord_id:
+                    stat.woordId,
 
                 juiste_antwoorden:
-                    juist ? 1 : 0,
+                    stat.juist ? 1 : 0,
 
                 foute_antwoorden:
-                    juist ? 0 : 1,
+                    stat.juist ? 0 : 1,
 
                 laatste_oefening:
                     new Date().toISOString()
 
             });
 
+        } else {
+
+            updates.push({
+
+                woordId:
+                    stat.woordId,
+
+                juiste:
+                    bestaande.juiste_antwoorden +
+                    (stat.juist ? 1 : 0),
+
+                foute:
+                    bestaande.foute_antwoorden +
+                    (stat.juist ? 0 : 1)
+
+            });
+
+        }
+
+    });
+
+
+    // Nieuwe statistieken in één keer toevoegen
+    if (
+        nieuweStatistieken.length > 0
+    ) {
+
+        const {
+            error
+        } = await supabaseClient
+            .from("woord_statistieken")
+            .insert(
+                nieuweStatistieken
+            );
+
+
         if (error) {
 
             console.error(
-                "Fout bij opslaan statistiek:",
+                "Fout bij toevoegen statistieken:",
                 error
             );
+
         }
 
-        return;
     }
 
 
-    const {
-        error
-    } = await supabaseClient
-        .from("woord_statistieken")
-        .update({
+    // Bestaande statistieken bijwerken
+    for (const update of updates) {
 
-            juiste_antwoorden:
-                bestaandeStatistiek.juiste_antwoorden +
-                (juist ? 1 : 0),
-
-            foute_antwoorden:
-                bestaandeStatistiek.foute_antwoorden +
-                (juist ? 0 : 1),
-
-            laatste_oefening:
-                new Date().toISOString()
-
-        })
-        .eq(
-            "woord_id",
-            woordId
-        );
-
-
-    if (error) {
-
-        console.error(
-            "Fout bij bijwerken statistiek:",
+        const {
             error
-        );
+        } = await supabaseClient
+            .from("woord_statistieken")
+            .update({
+
+                juiste_antwoorden:
+                    update.juiste,
+
+                foute_antwoorden:
+                    update.foute,
+
+                laatste_oefening:
+                    new Date().toISOString()
+
+            })
+            .eq(
+                "woord_id",
+                update.woordId
+            );
+
+
+        if (error) {
+
+            console.error(
+                "Fout bij bijwerken statistiek:",
+                error
+            );
+
+        }
+
     }
 
 }

@@ -942,24 +942,11 @@ async function updateOefenAantal() {
             select.selectedOptions
         ).map(option => option.value);
 
-    let query =
-        supabaseClient
-            .from("woorden")
-            .select("id", {
-                count: "exact",
-                head: true
-            });
+    let hoofdstukIds =
+        geselecteerdeIds;
 
     // Geen selectie = alle hoofdstukken
-    if (geselecteerdeIds.length > 0) {
-
-        query =
-            query.in(
-                "hoofdstuk_id",
-                geselecteerdeIds
-            );
-
-    } else {
+    if (hoofdstukIds.length === 0) {
 
         const {
             data: hoofdstukken,
@@ -967,43 +954,47 @@ async function updateOefenAantal() {
         } = await supabaseClient
             .from("hoofdstukken")
             .select("id")
-            .eq("taal", huidigeTaal);
+            .eq("taal", huidigeTaal)
+            .order("volgorde", {
+                ascending: true
+            });
 
         if (error) {
 
             console.error(error);
-
             return;
         }
 
-        const ids =
+        hoofdstukIds =
             hoofdstukken.map(
                 hoofdstuk => hoofdstuk.id
             );
-
-        if (ids.length === 0) {
-
-            document
-                .getElementById(
-                    "practiceWordCount"
-                )
-                .textContent =
-                    "Nog geen hoofdstukken.";
-
-            return;
-        }
-
-        query =
-            query.in(
-                "hoofdstuk_id",
-                ids
-            );
     }
 
+    if (hoofdstukIds.length === 0) {
+
+        document
+            .getElementById(
+                "practiceWordCount"
+            )
+            .textContent =
+                "Geen hoofdstukken beschikbaar.";
+
+        return;
+    }
+
+
+    // Woorden van de geselecteerde hoofdstukken ophalen
     const {
-        count,
+        data: woorden,
         error
-    } = await query;
+    } = await supabaseClient
+        .from("woorden")
+        .select("id, hoofdstuk_id")
+        .in(
+            "hoofdstuk_id",
+            hoofdstukIds
+        );
 
     if (error) {
 
@@ -1015,34 +1006,69 @@ async function updateOefenAantal() {
         return;
     }
 
-    if (!count) {
 
-        document
-            .getElementById(
-                "practiceWordCount"
-            )
-            .textContent =
-                "Geen woorden beschikbaar.";
+    // Woorden per hoofdstuk tellen
+    const aantallenPerHoofdstuk = {};
 
-        return;
-    }
+    hoofdstukIds.forEach(id => {
+        aantallenPerHoofdstuk[id] = 0;
+    });
 
-    const aantal =
-        Math.max(
-            1,
-            Math.ceil(
-                count *
-                gekozenPercentage /
-                100
-            )
-        );
+    woorden.forEach(woord => {
+
+        if (
+            aantallenPerHoofdstuk[
+                woord.hoofdstuk_id
+            ] !== undefined
+        ) {
+            aantallenPerHoofdstuk[
+                woord.hoofdstuk_id
+            ]++;
+        }
+
+    });
+
+
+    // Per hoofdstuk het gekozen percentage nemen
+    let totaalWoorden = 0;
+    let totaalOefenen = 0;
+
+    Object.values(
+        aantallenPerHoofdstuk
+    ).forEach(aantal => {
+
+        totaalWoorden += aantal;
+
+        if (aantal > 0) {
+
+            totaalOefenen +=
+                Math.max(
+                    1,
+                    Math.ceil(
+                        aantal *
+                        gekozenPercentage /
+                        100
+                    )
+                );
+
+        }
+
+    });
+
+
+    const hoofdstukTekst =
+        hoofdstukIds.length === 1
+            ? "hoofdstuk"
+            : "hoofdstukken";
+
 
     document
         .getElementById(
             "practiceWordCount"
         )
         .textContent =
-            `${count} woorden beschikbaar → ` +
-            `${aantal} woorden worden geoefend.`;
+            `${totaalWoorden} woorden in ` +
+            `${hoofdstukIds.length} ${hoofdstukTekst} → ` +
+            `${totaalOefenen} woorden worden geoefend.`;
 }
 );

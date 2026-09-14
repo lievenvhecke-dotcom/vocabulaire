@@ -561,53 +561,38 @@ document
     });
 
 
-/* =========================
-   WOORDEN LADEN
-   ========================= */
+ /* =========================
+    WOORDEN LADEN
+    ========================= */
 
 async function laadWoorden() {
 
     wordsList.innerHTML =
         "<p>Laden...</p>";
 
-   const gebruikerId =
-    await huidigeGebruikerId();
-
-if (!gebruikerId) {
-
-    alert(
-        "Je bent niet ingelogd."
-    );
-
-    return;
-}
-
-const {
-    error
-} = await supabaseClient
-    .from("woorden")
-    .insert({
-
-        gebruiker_id:
-            gebruikerId,
-
-        hoofdstuk_id:
-            huidigHoofdstuk.id,
-
-        nederlands:
-            nederlands,
-
-        vertaling:
-            vertaling
-
-    });
+    const {
+        data,
+        error
+    } = await supabaseClient
+        .from("woorden")
+        .select("*")
+        .eq(
+            "hoofdstuk_id",
+            huidigHoofdstuk.id
+        )
+        .order("created_at", {
+            ascending: true
+        });
 
     if (error) {
 
         wordsList.innerHTML =
             "<p>Er ging iets mis bij het laden.</p>";
 
-        console.error(error);
+        console.error(
+            "Fout bij laden woorden:",
+            error
+        );
 
         return;
     }

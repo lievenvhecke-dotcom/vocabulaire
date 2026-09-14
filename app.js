@@ -373,16 +373,17 @@ document
                 volgorde: volgorde
             });
 
-        if (error) {
+if (error) {
 
-            console.error(error);
+    console.error("Fout bij opslaan hoofdstuk:", error);
 
-            alert(
-                "Het hoofdstuk kon niet worden opgeslagen."
-            );
+    alert(
+        "Fout bij opslaan:\n\n" +
+        error.message
+    );
 
-            return;
-        }
+    return;
+}
 
         chapterModal.classList.add("hidden");
 

@@ -782,3 +782,141 @@ input:focus {
     }
 
 }
+
+/* =========================
+   IPHONE / MOBIEL
+   ========================= */
+
+@media (max-width: 600px) {
+
+    /* Algemene inhoud */
+    .content {
+        padding: 12px;
+    }
+
+    /* Bovenbalk */
+    .topbar {
+        padding: 12px 15px;
+    }
+
+    .topbar h1 {
+        font-size: 22px;
+    }
+
+    .topbar p {
+        font-size: 14px;
+    }
+
+    /* Knoppen */
+    button {
+        min-height: 44px;
+        font-size: 16px;
+    }
+
+    /* Oefening kiezen */
+    .practice-card {
+        padding: 18px;
+        border-radius: 14px;
+    }
+
+    #practiceChapter {
+        min-height: 180px;
+        font-size: 16px;
+    }
+
+    .percentage-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+    }
+
+    .percentage-button {
+        min-height: 48px;
+    }
+
+    /* Oefenlijst */
+    .practice-list-card {
+        margin: 5px 0;
+        padding: 12px;
+        border-radius: 14px;
+    }
+
+    .practice-word-item {
+        display: grid;
+        grid-template-columns: 28px 1fr;
+        gap: 6px 8px;
+        padding: 14px 0;
+    }
+
+    .practice-word-number {
+        grid-column: 1;
+        grid-row: 1;
+    }
+
+    .practice-word-dutch {
+        grid-column: 2;
+        grid-row: 1;
+        font-size: 17px;
+        font-weight: 600;
+    }
+
+    .practice-word-answer {
+        grid-column: 2;
+        grid-row: 2;
+        width: 100%;
+        min-height: 44px;
+        font-size: 17px;
+        padding: 10px;
+    }
+
+    .practice-word-feedback {
+        grid-column: 2;
+        grid-row: 3;
+        font-size: 16px;
+        min-height: 20px;
+    }
+
+    /* Controleer-knop */
+    #checkAllAnswersButton {
+        margin-top: 20px;
+        min-height: 50px;
+        font-size: 17px;
+    }
+
+    /* Resultaat */
+    .result-card {
+        margin: 5px 0;
+        padding: 22px 16px;
+    }
+
+    .result-title {
+        font-size: 26px;
+    }
+
+    .result-score {
+        font-size: 28px;
+    }
+
+    .result-percentage {
+        font-size: 22px;
+    }
+
+    .result-message {
+        font-size: 17px;
+    }
+
+    .result-actions {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .result-actions button {
+        width: 100%;
+    }
+
+    /* Fouten */
+    .result-mistake {
+        padding: 12px;
+        font-size: 15px;
+    }
+
+}

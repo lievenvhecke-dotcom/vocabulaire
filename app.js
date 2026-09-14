@@ -1077,21 +1077,15 @@ const gewogenWoorden =
     woordenHoofdstuk.map(woord => {
 
         const stat =
-            statistiekMap[
-                woord.id
-            ];
-
+            statistiekMap[woord.id];
 
         // Nieuw woord
         if (!stat) {
-
             return {
                 woord: woord,
                 gewicht: 5
             };
-
         }
-
 
         const juist =
             stat.juiste_antwoorden || 0;
@@ -1102,37 +1096,26 @@ const gewogenWoorden =
         const totaal =
             juist + fout;
 
-
-        // Nog nooit echt geoefend
+        // Nog nooit geoefend
         if (totaal === 0) {
-
             return {
                 woord: woord,
                 gewicht: 5
             };
-
         }
 
-
-        // =========================
-        // 1. FOUTPERCENTAGE
-        // =========================
-
+        // Foutpercentage
         const foutPercentage =
             fout / totaal;
 
-
+        // Moeilijkheid:
         // 1 = gemakkelijk
         // 10 = zeer moeilijk
         const moeilijkheidsGewicht =
             1 +
             (foutPercentage * 9);
 
-
-        // =========================
-        // 2. HOELANG NIET GEOEFEND
-        // =========================
-
+        // Hoe lang geleden geoefend?
         let dagenSindsOefening = 0;
 
         if (stat.laatste_oefening) {
@@ -1152,9 +1135,7 @@ const gewogenWoorden =
             dagenSindsOefening =
                 verschil /
                 (1000 * 60 * 60 * 24);
-
         }
-
 
         // Na 14 dagen maximaal 2x zoveel gewicht
         const recencyGewicht =
@@ -1167,15 +1148,10 @@ const gewogenWoorden =
                 1
             );
 
-
-        // =========================
-        // 3. COMBINEREN
-        // =========================
-
+        // Moeilijkheid × ouderdom
         const gewicht =
             moeilijkheidsGewicht *
             recencyGewicht;
-
 
         return {
             woord: woord,
@@ -1183,27 +1159,6 @@ const gewogenWoorden =
         };
 
     });
-
-
-                const foutPercentage =
-                    fout / totaal;
-
-
-                // Moeilijke woorden krijgen
-                // een groter gewicht
-                const gewicht =
-                    1 +
-                    (foutPercentage * 9);
-
-
-                return {
-                    woord: woord,
-                    gewicht: gewicht
-                };
-
-            });
-
-
         // Gewogen willekeurige selectie
         const gekozen =
             gewogenSelectie(

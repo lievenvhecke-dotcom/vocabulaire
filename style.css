@@ -504,3 +504,33 @@ input:focus {
         font-size: 20px;
     }
 }
+
+.word-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.word-dutch {
+    flex: 1;
+}
+
+.word-translation {
+    flex: 1;
+}
+
+.word-actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+}
+
+.edit-word-button,
+.delete-word-button {
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-size: 16px;
+    padding: 4px;
+}

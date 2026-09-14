@@ -575,7 +575,41 @@ async function laadWoorden() {
             <span class="word-translation">
                 ${escapeHtml(woord.vertaling)}
             </span>
+
+            <span class="word-actions">
+
+                <button
+                    class="edit-word-button"
+                    type="button">
+                    ✏️
+                </button>
+
+                <button
+                    class="delete-word-button"
+                    type="button">
+                    🗑️
+                </button>
+
+            </span>
         `;
+
+        // Bewerken
+        item
+            .querySelector(".edit-word-button")
+            .addEventListener("click", function () {
+
+                bewerkWoord(woord);
+
+            });
+
+        // Verwijderen
+        item
+            .querySelector(".delete-word-button")
+            .addEventListener("click", function () {
+
+                verwijderWoord(woord);
+
+            });
 
         wordsList.appendChild(item);
 

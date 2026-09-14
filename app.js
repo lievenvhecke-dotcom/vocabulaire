@@ -1400,6 +1400,7 @@ document
             );
 
         let aantalJuist = 0;
+        const fouten = [];
 
         for (const item of items) {
 
@@ -1448,10 +1449,12 @@ document
 
             } else {
 
-                feedback.innerHTML =
-                    `✗ ${escapeHtml(
-                        woord.vertaling
-                    )}`;
+                feedback.textContent = "✗";
+
+                fouten.push({
+                    nederlands: woord.nederlands,
+                    vertaling: woord.vertaling
+                });
 
                 await slaWoordStatistiekOp(
                     woord.id,
@@ -1462,12 +1465,186 @@ document
             input.disabled = true;
         }
 
+        this.disabled = true;
+
+        toonResultaat(
+            aantalJuist,
+            items.length,
+            fouten
+        );
+
+    });
+
+function toonResultaat(
+    aantalJuist,
+    totaal,
+    fouten
+) {
+
+    const percentage =
+        Math.round(
+            (aantalJuist / totaal) * 100
+        );
+
+    document
+        .getElementById("practiceScreen")
+        .classList.add("hidden");
+
+    document
+        .getElementById("practiceResultScreen")
+        .classList.remove("hidden");
+
+    document
+        .getElementById("resultLanguageLabel")
+        .textContent =
+            huidigeTaal === "frans"
+                ? "Frans"
+                : "Engels";
+
+    document
+        .getElementById("resultScore")
+        .textContent =
+            `${aantalJuist} van ${totaal} juist`;
+
+    document
+        .getElementById("resultPercentage")
+        .textContent =
+            `${percentage}%`;
+
+    let boodschap = "";
+
+    if (percentage === 100) {
+
+        boodschap =
+            "Perfect! 🎉 Alle woorden juist!";
+
+    } else if (percentage >= 80) {
+
+        boodschap =
+            "Heel goed! 👍";
+
+    } else if (percentage >= 60) {
+
+        boodschap =
+            "Goed bezig! Nog even oefenen.";
+
+    } else {
+
+        boodschap =
+            "Nog wat extra oefenen kan helpen. 💪";
+    }
+
+    document
+        .getElementById("resultMessage")
+        .textContent =
+            boodschap;
+
+
+    const foutenContainer =
+        document.getElementById(
+            "resultMistakes"
+        );
+
+    foutenContainer.innerHTML = "";
+
+
+    if (fouten.length > 0) {
+
+        const titel =
+            document.createElement("h3");
+
+        titel.textContent =
+            "Woorden om opnieuw te oefenen:";
+
+        foutenContainer.appendChild(
+            titel
+        );
+
+
+        fouten.forEach(fout => {
+
+            const item =
+                document.createElement("div");
+
+            item.className =
+                "result-mistake";
+
+            item.innerHTML = `
+
+                <div class="result-mistake-word">
+                    ${escapeHtml(
+                        fout.nederlands
+                    )}
+                </div>
+
+                <div class="result-mistake-answer">
+                    Juiste antwoord:
+                    ${escapeHtml(
+                        fout.vertaling
+                    )}
+                </div>
+
+            `;
+
+            foutenContainer.appendChild(
+                item
+            );
+
+        });
+
+    }
+}
+
+document
+    .getElementById("retryPracticeButton")
+    .addEventListener("click", async function () {
+
+        oefenWoorden =
+            await selecteerOefenWoorden();
+
+        if (
+            !oefenWoorden ||
+            oefenWoorden.length === 0
+        ) {
+
+            alert(
+                "Er zijn geen woorden om te oefenen."
+            );
+
+            return;
+        }
+
+        document
+            .getElementById("practiceResultScreen")
+            .classList.add("hidden");
+
+        document
+            .getElementById("practiceScreen")
+            .classList.remove("hidden");
+
+        document
+            .getElementById("checkAllAnswersButton")
+            .disabled = false;
+
         document
             .getElementById("practiceResult")
-            .textContent =
-                `${aantalJuist} van ${items.length} juist`;
+            .textContent = "";
 
-        this.disabled = true;
+        toonOefenWoorden();
+
+    });
+
+document
+    .getElementById("resultBackButton")
+    .addEventListener("click", function () {
+
+        document
+            .getElementById("practiceResultScreen")
+            .classList.add("hidden");
+
+        document
+            .getElementById("practiceSetupScreen")
+            .classList.remove("hidden");
 
     });
 

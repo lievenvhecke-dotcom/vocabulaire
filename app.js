@@ -1312,3 +1312,201 @@ function toonOefenWoorden() {
     );
 
 }
+
+/* =========================
+   ANTWOORDEN CONTROLEREN
+   ========================= */
+
+document
+    .getElementById("checkAllAnswersButton")
+    .addEventListener("click", async function () {
+
+        const items =
+            document.querySelectorAll(
+                ".practice-word-item"
+            );
+
+        let aantalJuist = 0;
+
+        for (const item of items) {
+
+            const input =
+                item.querySelector(
+                    ".practice-word-answer"
+                );
+
+            const feedback =
+                item.querySelector(
+                    ".practice-word-feedback"
+                );
+
+            const woordId =
+                input.dataset.wordId;
+
+            const woord =
+                oefenWoorden.find(
+                    w => w.id === woordId
+                );
+
+            if (!woord) {
+                continue;
+            }
+
+            const gegevenAntwoord =
+                input.value.trim();
+
+            const juistAntwoord =
+                woord.vertaling.trim();
+
+            const isJuist =
+                gegevenAntwoord.toLowerCase() ===
+                juistAntwoord.toLowerCase();
+
+            if (isJuist) {
+
+                aantalJuist++;
+
+                feedback.textContent = "✓";
+
+                await slaWoordStatistiekOp(
+                    woord.id,
+                    true
+                );
+
+            } else {
+
+                feedback.innerHTML =
+                    `✗ ${escapeHtml(
+                        woord.vertaling
+                    )}`;
+
+                await slaWoordStatistiekOp(
+                    woord.id,
+                    false
+                );
+            }
+
+            input.disabled = true;
+        }
+
+        document
+            .getElementById("practiceResult")
+            .textContent =
+                `${aantalJuist} van ${items.length} juist`;
+
+        this.disabled = true;
+
+    });
+
+/* =========================
+   STATISTIEK OPSLAAN
+   ========================= */
+
+async function slaWoordStatistiekOp(
+    woordId,
+    juist
+) {
+
+    const {
+        data: bestaandeStatistiek,
+        error: selectError
+    } = await supabaseClient
+        .from("woord_statistieken")
+        .select("*")
+        .eq("woord_id", woordId)
+        .maybeSingle();
+
+    if (selectError) {
+
+        console.error(
+            "Fout bij ophalen statistiek:",
+            selectError
+        );
+
+        return;
+    }
+
+    if (!bestaandeStatistiek) {
+
+        const {
+            error
+        } = await supabaseClient
+            .from("woord_statistieken")
+            .insert({
+
+                woord_id: woordId,
+
+                juiste_antwoorden:
+                    juist ? 1 : 0,
+
+                foute_antwoorden:
+                    juist ? 0 : 1,
+
+                laatste_oefening:
+                    new Date().toISOString()
+
+            });
+
+        if (error) {
+
+            console.error(
+                "Fout bij opslaan statistiek:",
+                error
+            );
+        }
+
+        return;
+    }
+
+
+    const {
+        error
+    } = await supabaseClient
+        .from("woord_statistieken")
+        .update({
+
+            juiste_antwoorden:
+                bestaandeStatistiek.juiste_antwoorden +
+                (juist ? 1 : 0),
+
+            foute_antwoorden:
+                bestaandeStatistiek.foute_antwoorden +
+                (juist ? 0 : 1),
+
+            laatste_oefening:
+                new Date().toISOString()
+
+        })
+        .eq(
+            "woord_id",
+            woordId
+        );
+
+
+    if (error) {
+
+        console.error(
+            "Fout bij bijwerken statistiek:",
+            error
+        );
+    }
+
+}
+
+/* =========================
+   OEFENING STOPPEN
+   ========================= */
+
+document
+    .getElementById("stopPracticeButton")
+    .addEventListener("click", function () {
+
+        document
+            .getElementById("practiceScreen")
+            .classList.add("hidden");
+
+        document
+            .getElementById("practiceSetupScreen")
+            .classList.remove("hidden");
+
+    });

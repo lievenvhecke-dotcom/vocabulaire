@@ -30,6 +30,29 @@ async function huidigeGebruikerId() {
     return user.id;
 }
 
+async function toonIngelogdeGebruiker() {
+
+    const {
+        data: { user },
+        error
+    } = await supabaseClient.auth.getUser();
+
+    const element =
+        document.getElementById("loggedInUser");
+
+    if (!element) {
+        return;
+    }
+
+    if (error || !user) {
+        element.textContent = "";
+        return;
+    }
+
+    element.textContent =
+        `👤 ${user.email}`;
+}
+
 /* =========================
    ELEMENTEN
    ========================= */

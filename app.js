@@ -1071,4 +1071,3 @@ async function updateOefenAantal() {
             `${hoofdstukIds.length} ${hoofdstukTekst} → ` +
             `${totaalOefenen} woorden worden geoefend.`;
 }
-);

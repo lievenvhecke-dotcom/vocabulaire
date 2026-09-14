@@ -702,3 +702,83 @@ input:focus {
     }
 
 }
+
+/* =========================
+   RESULTAAT
+   ========================= */
+
+.result-card {
+    max-width: 700px;
+    margin: 30px auto;
+    padding: 30px;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    text-align: center;
+}
+
+.result-title {
+    font-size: 30px;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+.result-score {
+    font-size: 32px;
+    font-weight: bold;
+    margin-bottom: 8px;
+}
+
+.result-percentage {
+    font-size: 24px;
+    margin-bottom: 15px;
+}
+
+.result-message {
+    font-size: 18px;
+    margin-bottom: 25px;
+}
+
+.result-mistakes {
+    text-align: left;
+    margin-top: 20px;
+}
+
+.result-mistake {
+    padding: 12px;
+    margin-bottom: 8px;
+    background: #f7f7f7;
+    border-radius: 8px;
+}
+
+.result-mistake-word {
+    font-weight: bold;
+}
+
+.result-mistake-answer {
+    color: #666;
+    margin-top: 4px;
+}
+
+.result-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 30px;
+}
+
+.result-actions button {
+    flex: 1;
+}
+
+@media (max-width: 600px) {
+
+    .result-card {
+        margin: 10px 0;
+        padding: 20px;
+    }
+
+    .result-actions {
+        flex-direction: column;
+    }
+
+}

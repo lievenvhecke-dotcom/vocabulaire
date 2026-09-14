@@ -226,8 +226,9 @@
 
         <div>
             <h1>Oefenen</h1>
+
             <p id="practiceProgress">
-                Vraag 1
+                Woorden
             </p>
         </div>
 
@@ -239,27 +240,17 @@
 
     </header>
 
+
     <main class="content">
 
-        <div class="practice-question-card">
+        <div class="practice-list-card">
 
-            <p class="practice-label">
-                Vertaal naar het Frans
-            </p>
-
-            <h2 id="practiceQuestion">
-                woord
-            </h2>
-
-            <input
-                type="text"
-                id="practiceAnswer"
-                class="practice-answer"
-                placeholder="Typ je antwoord..."
-                autocomplete="off">
+            <div id="practiceWordsList">
+                <!-- Woorden komen hier -->
+            </div>
 
             <button
-                id="checkAnswerButton"
+                id="checkAllAnswersButton"
                 class="primary-button">
 
                 Controleer
@@ -267,17 +258,9 @@
             </button>
 
             <div
-                id="practiceFeedback"
-                class="practice-feedback">
+                id="practiceResult"
+                class="practice-result">
             </div>
-
-            <button
-                id="nextQuestionButton"
-                class="primary-button hidden">
-
-                Volgende →
-
-            </button>
 
         </div>
 

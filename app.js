@@ -113,6 +113,57 @@ logoutButton.addEventListener("click", async function () {
 
 });
 
+document
+    .getElementById("loginButton")
+    .addEventListener("click", async function () {
+
+        const email =
+            document
+                .getElementById("loginEmail")
+                .value
+                .trim();
+
+        const password =
+            document
+                .getElementById("loginPassword")
+                .value;
+
+        const errorElement =
+            document.getElementById("loginError");
+
+        errorElement.textContent = "";
+
+        if (!email || !password) {
+
+            errorElement.textContent =
+                "Vul e-mail en wachtwoord in.";
+
+            return;
+        }
+
+        const {
+            error
+        } = await supabaseClient.auth.signInWithPassword({
+            email: email,
+            password: password
+        });
+
+        if (error) {
+
+            console.error(
+                "Login fout:",
+                error
+            );
+
+            errorElement.textContent =
+                "E-mail of wachtwoord is niet correct.";
+
+            return;
+        }
+
+        await controleerSessie();
+
+    });
 
 /* =========================
    SESSIE CONTROLEREN

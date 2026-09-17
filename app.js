@@ -852,13 +852,20 @@ async function verwijderWoord(woord) {
     await laadWoorden();
 }
 
- /* =========================
-    WOORD TOEVOEGEN
-    ========================= */
+/* =========================
+   WOORD TOEVOEGEN
+   ========================= */
 
 const wordModal =
     document.getElementById("wordModal");
 
+const bulkWordModal =
+    document.getElementById("bulkWordModal");
+
+
+/* =========================
+   ENKEL WOORD
+   ========================= */
 
 document
     .getElementById("addWordButton")
@@ -906,7 +913,6 @@ document
             return;
         }
 
-        // Ingelogde gebruiker ophalen
         const gebruikerId =
             await huidigeGebruikerId();
 
@@ -958,6 +964,311 @@ document
         await laadWoorden();
 
     });
+
+
+/* =========================
+   MEERDERE WOORDEN
+   ========================= */
+
+const bulkWordsList =
+    document.getElementById("bulkWordsList");
+
+
+function voegBulkWoordRegelToe() {
+
+    const row =
+        document.createElement("div");
+
+    row.className =
+        "bulk-word-row";
+
+    row.innerHTML = `
+
+        <input
+            type="text"
+            class="bulk-dutch-word"
+            placeholder="Nederlands"
+            autocomplete="off">
+
+        <input
+            type="text"
+            class="bulk-translated-word"
+            placeholder="Vertaling"
+            autocomplete="off">
+
+        <button
+            type="button"
+            class="bulk-remove-row"
+            title="Regel verwijderen">
+
+            ×
+
+        </button>
+
+    `;
+
+    row
+        .querySelector(".bulk-remove-row")
+        .addEventListener("click", function () {
+
+            row.remove();
+
+        });
+
+    bulkWordsList.appendChild(row);
+}
+
+
+function maakBulkWoordenLeeg() {
+
+    bulkWordsList.innerHTML = "";
+
+    // Start met 5 regels
+    for (let i = 0; i < 5; i++) {
+
+        voegBulkWoordRegelToe();
+
+    }
+}
+
+
+/* =========================
+   BULK MODAL OPENEN
+   ========================= */
+
+document
+    .getElementById("bulkWordButton")
+    .addEventListener("click", function () {
+
+        // Gewone woord-modal sluiten
+        wordModal.classList.add("hidden");
+
+        // Bulkformulier opnieuw opbouwen
+        maakBulkWoordenLeeg();
+
+        // Bulk-modal openen
+        bulkWordModal.classList.remove("hidden");
+
+        // Cursor meteen in eerste veld
+        const eersteVeld =
+            bulkWordsList.querySelector(
+                ".bulk-dutch-word"
+            );
+
+        if (eersteVeld) {
+            eersteVeld.focus();
+        }
+
+    });
+
+
+/* =========================
+   EXTRA REGEL
+   ========================= */
+
+document
+    .getElementById("addBulkWordRowButton")
+    .addEventListener("click", function () {
+
+        voegBulkWoordRegelToe();
+
+        const rijen =
+            bulkWordsList.querySelectorAll(
+                ".bulk-word-row"
+            );
+
+        const laatsteRij =
+            rijen[rijen.length - 1];
+
+        laatsteRij
+            .querySelector(".bulk-dutch-word")
+            .focus();
+
+    });
+
+
+/* =========================
+   BULK ANNULEREN
+   ========================= */
+
+document
+    .getElementById("cancelBulkWordButton")
+    .addEventListener("click", function () {
+
+        bulkWordModal.classList.add("hidden");
+
+    });
+
+
+/* =========================
+   ALLE WOORDEN OPSLAAN
+   ========================= */
+
+document
+    .getElementById("saveBulkWordsButton")
+    .addEventListener("click", async function () {
+
+        const rijen =
+            bulkWordsList.querySelectorAll(
+                ".bulk-word-row"
+            );
+
+        const woorden =
+            [];
+
+        rijen.forEach(row => {
+
+            const nederlands =
+                row
+                    .querySelector(".bulk-dutch-word")
+                    .value
+                    .trim();
+
+            const vertaling =
+                row
+                    .querySelector(".bulk-translated-word")
+                    .value
+                    .trim();
+
+            // Volledig lege regel overslaan
+            if (!nederlands && !vertaling) {
+                return;
+            }
+
+            // Half ingevulde regel
+            if (!nederlands || !vertaling) {
+
+                return;
+
+            }
+
+            woorden.push({
+
+                nederlands:
+                    nederlands,
+
+                vertaling:
+                    vertaling
+
+            });
+
+        });
+
+
+        if (woorden.length === 0) {
+
+            alert(
+                "Vul minstens één woord in."
+            );
+
+            return;
+
+        }
+
+
+        // Controleer of er half ingevulde regels zijn
+        let onvolledigeRegel = false;
+
+        rijen.forEach(row => {
+
+            const nederlands =
+                row
+                    .querySelector(".bulk-dutch-word")
+                    .value
+                    .trim();
+
+            const vertaling =
+                row
+                    .querySelector(".bulk-translated-word")
+                    .value
+                    .trim();
+
+            if (
+                (nederlands && !vertaling) ||
+                (!nederlands && vertaling)
+            ) {
+
+                onvolledigeRegel = true;
+
+            }
+
+        });
+
+
+        if (onvolledigeRegel) {
+
+            alert(
+                "Vul bij elk gebruikt woord zowel Nederlands als de vertaling in."
+            );
+
+            return;
+
+        }
+
+
+        const gebruikerId =
+            await huidigeGebruikerId();
+
+        if (!gebruikerId) {
+
+            alert(
+                "Je bent niet ingelogd."
+            );
+
+            return;
+
+        }
+
+
+        // Gegevens klaarzetten voor Supabase
+        const records =
+            woorden.map(woord => ({
+
+                gebruiker_id:
+                    gebruikerId,
+
+                hoofdstuk_id:
+                    huidigHoofdstuk.id,
+
+                nederlands:
+                    woord.nederlands,
+
+                vertaling:
+                    woord.vertaling
+
+            }));
+
+
+        const {
+            error
+        } = await supabaseClient
+            .from("woorden")
+            .insert(records);
+
+
+        if (error) {
+
+            console.error(
+                "Fout bij bulk toevoegen:",
+                error
+            );
+
+            alert(
+                "De woorden konden niet worden opgeslagen.\n\n" +
+                error.message
+            );
+
+            return;
+
+        }
+
+
+        bulkWordModal.classList.add("hidden");
+
+        await laadWoorden();
+
+    });
+
 /* =========================
    HTML VEILIG MAKEN
    ========================= */
